@@ -166,23 +166,28 @@ def sort_output(header,lbls,vt,ct,strata)
   [header]+res
 end
 
-def file_from_mat(lbl,tab, filename=nil)
-  CSV.open(filename, 'w') do |writer|
-    sheet.each{|row| writer << row}
+# main()
+# Reads the input from input.csv
+# Writes the sorted CT to CT_View.csv
+# Writes the sorted VT to VT_View.csv
+# Writes the stratum sizes to the first row of Strata.csv
+def main
+  header,lbls,vt = *parse_file('input.csv')
+  ct = ct_from_vt(copy_mat(vt))
+  strata = rcd(copy_mat(ct))
+  header,lbls,vt,ct = *sort_output(header,lbls,vt,ct,strata)
+  
+  vt_view = [header] + (0...lbls.size).map{|i| lbls[i]+vt[i]}
+  ct_view = [header] + (0...lbls.size).map{|i| lbls[i]+ct[i]}
+  
+  CSV.open('VT_View.csv', 'w') do |writer|
+    vt_view.each{|row| writer << row}
   end
-end
-
-header,lbls,vt = *parse_file('input.csv')
-ct = ct_from_vt(copy_mat(vt))
-strata = rcd(copy_mat(ct))
-header,lbls,vt,ct = *sort_output(header,lbls,vt,ct,strata)
-
-vt_view = [header] + (0...lbls.size).map{|i| lbls[i]+vt[i]}
-ct_view = [header] + (0...lbls.size).map{|i| lbls[i]+ct[i]}
-
-CSV.open('VT_View.csv', 'w') do |writer|
-  vt_view.each{|row| writer << row}
-end
-CSV.open('CT_View.csv', 'w') do |writer|
-  ct_view.each{|row| writer << row}
+  CSV.open('CT_View.csv', 'w') do |writer|
+    ct_view.each{|row| writer << row}
+  end
+  CSV.open('Strata.csv', 'w') do |writer|
+    writer << strata.map{|x|x.size}
+  end
+  
 end
