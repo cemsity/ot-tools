@@ -3,33 +3,61 @@ W='W'
 E='e'
 L='L'
 
-# vt_from_file(filename)
-#   Input - The name of the file containing the comma-delimited vt.
-#     The desired optimum should be above other candidates in a set, and the candidate sets should
-#     be separated by empty lines
-#   Output - The file converted to a 2-dimensional array
-def vt_from_file(filename)
+# comp_ct(a,b)
+# Input - a and b are each E, W, or L
+# Output - returns a<=>b, where 
+
+# print_mat(matrix[,delim])
+# Input - Matrix is a 2-dimensional array. Delim is an optional delimiter
+# Output - Prints the matrix to the screen, with the elements of the rows separated by delim.
+#   If delim is nil or omitted, prints each row as an array
+def print_mat(matrix, delim=nil)
+  puts matrix.map{|x| delim ? x.join(delim) : x.inspect}
+end
+
+# copy_mat(mat)
+# Input - An array of arrays
+# Output - A matrix containing copies of the elements of mat
+def copy_mat(mat)
+  mat.map{|r|r.map{|x|x.clone}}
+end
+
+# parse_file(filename)
+# Input - The name of the file containing the comma-delimited vt.
+#   The desired optimum should be above other candidates in a set, and the candidate sets should
+#   be separated by empty lines
+# Output - [header,lbls,vt]
+#   Header is the first row of the file
+#   Lbls is the candidate numbers, words, and candidate sets in a matrix
+#   Vt is the violation tableau
+#   The desired optimum is moved to the top of each candidate set
+def parse_file(filename)
   matrix = File.read(filename).split("\r").map{|x|x.split(',')}
-  matrix.shift
+  header = matrix.shift
   matrix << []
-  res = [[],[]]
+  lbls = []
+  vt = []
+  set='1'
   until matrix.empty? do
     inp = []
     dat = []
+    cand = 'a'
     while (row=matrix.shift) != [] do
-      inp << row[0]
-      dat << row[1..-1]
+      inp << row[0..0]
+      dat << [set+'.'+cand]+row[1..-1]
+      cand = cand.succ
     end
-    dat.sort!{|x,y| y[1] <=> x[1]}
+    dat.sort!{|x,y| y[2] <=> x[2]}
     until inp.empty? do
       row_dat = dat.shift
-      res[0] << [inp.shift]+row_dat[0..1]
-      res[1] << row_dat[2..-1]
+      lbls << inp.shift+row_dat[0..2]
+      vt << row_dat[3..-1]
     end
-    res[0] << row
-    res[1] << ['']
+    lbls << row
+    vt << []
+    set = set.succ
   end
-  res
+  [header,lbls,vt]
 end
 
 # ct_from_vt(vt)
@@ -41,7 +69,7 @@ def ct_from_vt(vt)
   ct = []
   until vt.empty? do
     line0 = vt.shift
-    until (line = vt.shift).first=='' do
+    while (line = vt.shift).first do
       ct << (0...line.size).map{ |i| {-1 => L, 0 => E, 1 => W}[line[i]<=>line0[i]] }
       break if vt.empty?
     end
@@ -99,29 +127,47 @@ def rcd_file(filename)
   #puts str ? str.map{|x|x.join('|')} : 'No solution'
 end
 
-def sort_output(lbls,vt,ct,strata)
+def filtration_output(lbls,vt,ct,strata)
   cols = strata.flatten
   lbls=lbls.clone
   vt = vt.map{|x|x.values_at(*cols)}
   ct = ct.map{|x|x.values_at(*cols)}
   com = []
+  vt = [[nil]]+vt
   for i in 0...vt.size do
-    if vt[i]==[]
+    unless vt[i].first
       vt[i]=nil
       ct[i...i]=[[],nil]
-      lbls[i]=nil
     end
   end
+  lbls.delete_if{|x|x[0].nil?}
   vt.compact!; ct.compact!; lbls.compact!
-  com = (0...vt.size).map{|i|[lbls[i],vt[i],ct[i]]}
-  com.sort!{|a,b| a[1]<=>b[1]}
-  
+  for i in 0...vt.size
+    lbls[i][1..2] , vt[i][0...0] = nil , lbls[i][1..2]
+  end
+  rows=[]
+  until vt.empty? do
+    com = []
+    begin
+      com << [vt.shift, ct.shift]
+    end while ct[0][0]
+    com.sort!{|a,b|a[0][2..-1]<=>b[0][2..-1]}
+    rows += com
+  end
   res = [[],[],[]]
   begin
-    row = com.shift
-    (0..3).each{|i| res[i] << row[i]}
-  end until com.empty?
-  com
+    row = rows.shift
+    res[0] << lbls.shift+row[0][0..1]
+    res[1] << row[0][2..-1]
+    res[2] << row[1]
+  end until rows.empty?
+  res
 end
-  
-vt_from_file('../input.csv')
+
+
+header,lbls,vt = *parse_file('input.csv')
+ct = ct_from_vt(copy_mat(vt))
+strata = rcd(copy_mat(ct))
+lbls,vt,ct = *filtration_output(lbls,vt,ct,strata)
+Lbls = lbls;Vt=vt;Ct=ct
+
