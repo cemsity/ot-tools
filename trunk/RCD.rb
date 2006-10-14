@@ -1,3 +1,5 @@
+require 'CSV.rb'
+
 # constants for use in the CT
 W='W'
 E='e'
@@ -30,6 +32,7 @@ end
 def parse_file(filename)
   matrix = File.read(filename).split("\r").map{|x|x.split(',')}
   header = matrix.shift
+  header[1...1]=['Number']
   matrix << []
   lbls = []
   vt = []
@@ -125,11 +128,12 @@ end
 # sort_output(lbls,vt,ct,strata)
 #   Input - The row labels, VT, CT, and strata
 #   Output - The row labes, VT, and CT sorted for filtration
-def sort_output(lbls,vt,ct,strata)
+def sort_output(header,lbls,vt,ct,strata)
   cols = strata.flatten
   lbls=lbls.clone
   vt = vt.map{|x|x.values_at(*cols)}
   ct = ct.map{|x|x.values_at(*cols)}
+  header[4..-1]=header[4..-1].values_at(*cols)
   com = []
   vt = [[nil]]+vt
   for i in 0...vt.size do
@@ -141,7 +145,7 @@ def sort_output(lbls,vt,ct,strata)
   lbls.delete_if{|x|x[0].nil?}
   vt.compact!; ct.compact!; lbls.compact!
   for i in 0...vt.size
-    lbls[i][1..2] , vt[i][0...0] = nil , lbls[i][1..2]
+    lbls[i][1..-1] , vt[i][0...0] = nil , lbls[i][1..-1]
   end
   rows=[]
   until vt.empty? do
@@ -149,23 +153,36 @@ def sort_output(lbls,vt,ct,strata)
     begin
       com << [vt.shift, ct.shift]
     end while ct[0][0]
-    com.sort!{|a,b|a[0][2..-1]<=>b[0][2..-1]}
+    com.sort!{|a,b|a[0][3..-1]<=>b[0][3..-1]}
     rows += com
   end
   res = [[],[],[]]
   begin
     row = rows.shift
-    res[0] << lbls.shift+row[0][0..1]
-    res[1] << row[0][2..-1]
+    res[0] << lbls.shift+row[0][0..2]
+    res[1] << row[0][3..-1]
     res[2] << row[1]
   end until rows.empty?
-  res
+  [header]+res
 end
 
+def file_from_mat(lbl,tab, filename=nil)
+  CSV.open(filename, 'w') do |writer|
+    sheet.each{|row| writer << row}
+  end
+end
 
 header,lbls,vt = *parse_file('input.csv')
 ct = ct_from_vt(copy_mat(vt))
 strata = rcd(copy_mat(ct))
-lbls,vt,ct = *sort_output(lbls,vt,ct,strata)
-Lbls = lbls;Vt=vt;Ct=ct
+header,lbls,vt,ct = *sort_output(header,lbls,vt,ct,strata)
 
+vt_view = [header] + (0...lbls.size).map{|i| lbls[i]+vt[i]}
+ct_view = [header] + (0...lbls.size).map{|i| lbls[i]+ct[i]}
+
+CSV.open('VT_View.csv', 'w') do |writer|
+  vt_view.each{|row| writer << row}
+end
+CSV.open('CT_View.csv', 'w') do |writer|
+  ct_view.each{|row| writer << row}
+end
