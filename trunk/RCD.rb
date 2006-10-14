@@ -3,10 +3,6 @@ W='W'
 E='e'
 L='L'
 
-# comp_ct(a,b)
-# Input - a and b are each E, W, or L
-# Output - returns a<=>b, where 
-
 # print_mat(matrix[,delim])
 # Input - Matrix is a 2-dimensional array. Delim is an optional delimiter
 # Output - Prints the matrix to the screen, with the elements of the rows separated by delim.
@@ -16,21 +12,21 @@ def print_mat(matrix, delim=nil)
 end
 
 # copy_mat(mat)
-# Input - An array of arrays
-# Output - A matrix containing copies of the elements of mat
+#   Input - An array of arrays
+#   Output - A matrix containing copies of the elements of mat
 def copy_mat(mat)
   mat.map{|r|r.map{|x|x.clone}}
 end
 
 # parse_file(filename)
-# Input - The name of the file containing the comma-delimited vt.
-#   The desired optimum should be above other candidates in a set, and the candidate sets should
-#   be separated by empty lines
-# Output - [header,lbls,vt]
-#   Header is the first row of the file
-#   Lbls is the candidate numbers, words, and candidate sets in a matrix
-#   Vt is the violation tableau
-#   The desired optimum is moved to the top of each candidate set
+#   Input - The name of the file containing the comma-delimited vt.
+#     The desired optimum should be above other candidates in a set, and the candidate sets should
+#     be separated by empty lines
+#   Output - [header,lbls,vt]
+#     Header is the first row of the file
+#     Lbls is the candidate numbers, words, and candidate sets in a matrix
+#     Vt is the violation tableau
+#     The desired optimum is moved to the top of each candidate set
 def parse_file(filename)
   matrix = File.read(filename).split("\r").map{|x|x.split(',')}
   header = matrix.shift
@@ -63,7 +59,6 @@ end
 # ct_from_vt(vt)
 #   Input - an array of condidates' scores on constraints, as described in vt_from_file
 #   Output - the CT, in the standard form
-# Example: ct_from_vt(vt_from_file(input.csv))
 def ct_from_vt(vt)
   vt=vt.clone
   ct = []
@@ -127,7 +122,10 @@ def rcd_file(filename)
   #puts str ? str.map{|x|x.join('|')} : 'No solution'
 end
 
-def filtration_output(lbls,vt,ct,strata)
+# sort_output(lbls,vt,ct,strata)
+#   Input - The row labels, VT, CT, and strata
+#   Output - The row labes, VT, and CT sorted for filtration
+def sort_output(lbls,vt,ct,strata)
   cols = strata.flatten
   lbls=lbls.clone
   vt = vt.map{|x|x.values_at(*cols)}
@@ -168,6 +166,6 @@ end
 header,lbls,vt = *parse_file('input.csv')
 ct = ct_from_vt(copy_mat(vt))
 strata = rcd(copy_mat(ct))
-lbls,vt,ct = *filtration_output(lbls,vt,ct,strata)
+lbls,vt,ct = *sort_output(lbls,vt,ct,strata)
 Lbls = lbls;Vt=vt;Ct=ct
 
