@@ -170,8 +170,19 @@ end
 #   Input - The header, labels, VT, and CT as output by sort_output
 #   Output - The mother of all tableaux, sorted
 def mother(header,lbls,vt,ct)
-  body = (0...vt.size).map{|i|lbls[i]+vt[i]+ct[i]}
-  [header]+body
+  body = [header]
+  (header.size).downto(5) do
+    |c|
+    body[0][c...c]=body[0][c-1...c]
+  end
+  until lbls.empty? do
+    row = lbls.shift
+    row_v = vt.shift
+    row_c = ct.shift
+    row << row_v.shift << row_c.shift until row_v.empty?
+    body << row
+  end
+  body
 end
 
 # main(file)
@@ -190,6 +201,7 @@ def main(file)
   
   vt_view = [header] + (0...lbls.size).map{|i| lbls[i]+vt[i]}
   ct_view = [header] + (0...lbls.size).map{|i| lbls[i]+ct[i]}
+  moth = mother(header,lbls,vt,ct)
   
   CSV.open('VT_View.csv', 'w') do |writer|
     vt_view.each{|row| writer << row}
@@ -199,6 +211,9 @@ def main(file)
   end
   CSV.open('Strata.csv', 'w') do |writer|
     writer << strata.map{|x|x.size}
+  end
+  CSV.open('Mother.csv', 'w') do |writer|
+    moth.each{|row| writer << row}
   end
 end
 
