@@ -60,7 +60,7 @@ def parse_file(filename)
 end
 
 # ct_from_vt(vt)
-#   Input - an array of condidates' scores on constraints, as described in vt_from_file
+#   Input - an array of candidates' scores on constraints, as described in vt_from_file
 #   Output - the CT, in the standard form
 def ct_from_vt(vt)
   vt=vt.clone
@@ -166,15 +166,26 @@ def sort_output(header,lbls,vt,ct,strata)
   [header]+res
 end
 
-# main()
-# Reads the input from input.csv
-# Writes the sorted CT to CT_View.csv
-# Writes the sorted VT to VT_View.csv
-# Writes the stratum sizes to the first row of Strata.csv
-def main
-  header,lbls,vt = *parse_file('input.csv')
+# mother(header,lbls,vt,ct)
+#   Input - The header, labels, VT, and CT as output by sort_output
+#   Output - The mother of all tableaux, sorted
+def mother(header,lbls,vt,ct)
+  body = (0...vt.size).map{|i|lbls[i]+vt[i]+ct[i]}
+  [header]+body
+end
+
+# main(file)
+#   Reads the input from File.
+#   Writes the sorted CT to CT_View.csv
+#   Writes the sorted VT to VT_View.csv
+#   Writes the stratum sizes to the first row of Strata.csv
+def main(file)
+  header,lbls,vt = *parse_file(file)
   ct = ct_from_vt(copy_mat(vt))
   strata = rcd(copy_mat(ct))
+  
+  raise('No solution found') if strata==nil
+  
   header,lbls,vt,ct = *sort_output(header,lbls,vt,ct,strata)
   
   vt_view = [header] + (0...lbls.size).map{|i| lbls[i]+vt[i]}
@@ -189,5 +200,7 @@ def main
   CSV.open('Strata.csv', 'w') do |writer|
     writer << strata.map{|x|x.size}
   end
-  
 end
+
+  
+main ARGV[0]?ARGV[0]:'input.csv'
