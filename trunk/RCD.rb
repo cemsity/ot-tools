@@ -113,21 +113,9 @@ def rcd(ct)
   return strata
 end
 
-# rcd_file(filename)
-#   Input - the name of the file containing the comma, space, or tab-delimited vt
-#   Output - the strata in an array. Each stratum is an array containing the indices of the rules in that stratum
-def rcd_file(filename)
-  lbls,vt = *vt_from_file(filename)
-  ct = ct_from_vt(vt)
-  str = rcd(ct)
-  sorted = sort_output(lbls,vt,ct,str)
-  sorted.each{|i| puts i,'--------------------------'}
-  #puts str ? str.map{|x|x.join('|')} : 'No solution'
-end
-
-# sort_output(lbls,vt,ct,strata)
-#   Input - The row labels, VT, CT, and strata
-#   Output - The row labes, VT, and CT sorted for filtration
+# sort_output(header,lbls,vt,ct,strata)
+#   Input - The header line, row labels, VT, CT, and strata
+#   Output - The header line, row labes, VT, and CT sorted for filtration
 def sort_output(header,lbls,vt,ct,strata)
   cols = strata.flatten
   lbls=lbls.clone
@@ -187,9 +175,10 @@ end
 
 # main(file)
 #   Reads the input from File.
-#   Writes the sorted CT to CT_View.csv
-#   Writes the sorted VT to VT_View.csv
-#   Writes the stratum sizes to the first row of Strata.csv
+#   Writes the sorted CT to Output/CT_View.csv
+#   Writes the sorted VT to Output/VT_View.csv
+#   Writes the mother of all tableaux to Output/Mother.csv
+#   Writes the stratum sizes to the first row of Output/Strata.csv
 def main(file)
   header,lbls,vt = *parse_file(file)
   ct = ct_from_vt(copy_mat(vt))
@@ -203,19 +192,19 @@ def main(file)
   ct_view = [header] + (0...lbls.size).map{|i| lbls[i]+ct[i]}
   moth = mother(header,lbls,vt,ct)
   
-  CSV.open('VT_View.csv', 'w') do |writer|
+  CSV.open('Output/VT_View.csv', 'w') do |writer|
     vt_view.each{|row| writer << row}
   end
-  CSV.open('CT_View.csv', 'w') do |writer|
+  CSV.open('Output/CT_View.csv', 'w') do |writer|
     ct_view.each{|row| writer << row}
   end
-  CSV.open('Strata.csv', 'w') do |writer|
+  CSV.open('Output/Strata.csv', 'w') do |writer|
     writer << strata.map{|x|x.size}
   end
-  CSV.open('Mother.csv', 'w') do |writer|
+  CSV.open('Output/Mother.csv', 'w') do |writer|
     moth.each{|row| writer << row}
   end
 end
 
   
-main ARGV[0]?ARGV[0]:'input.csv'
+main ARGV[0]?ARGV[0]:'Input/input.csv'
