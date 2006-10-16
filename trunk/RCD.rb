@@ -173,13 +173,13 @@ def mother(header,lbls,vt,ct)
   body
 end
 
-# main(file)
+# rcd_main(file)
 #   Reads the input from File.
 #   Writes the sorted CT to Output/CT_View.csv
 #   Writes the sorted VT to Output/VT_View.csv
 #   Writes the mother of all tableaux to Output/Mother.csv
 #   Writes the stratum sizes to the first row of Output/Strata.csv
-def main(file)
+def rcd_main(file,folder)
   header,lbls,vt = *parse_file(file)
   ct = ct_from_vt(copy_mat(vt))
   strata = rcd(copy_mat(ct))
@@ -192,19 +192,20 @@ def main(file)
   ct_view = [header] + (0...lbls.size).map{|i| lbls[i]+ct[i]}
   moth = mother(header,lbls,vt,ct)
   
-  CSV.open('Output/VT_View.csv', 'w') do |writer|
+  CSV.open(folder+'/VT_View.csv', 'w') do |writer|
     vt_view.each{|row| writer << row}
   end
-  CSV.open('Output/CT_View.csv', 'w') do |writer|
+  CSV.open(folder+'/CT_View.csv', 'w') do |writer|
     ct_view.each{|row| writer << row}
   end
-  CSV.open('Output/Strata.csv', 'w') do |writer|
+  CSV.open(folder+'/Strata.csv', 'w') do |writer|
     writer << strata.map{|x|x.size}
   end
-  CSV.open('Output/Mother.csv', 'w') do |writer|
+  CSV.open(folder+'/Mother.csv', 'w') do |writer|
     moth.each{|row| writer << row}
   end
 end
 
-  
-main ARGV[0]?ARGV[0]:'Input/input.csv'
+#ARGV[0]='Input/input.csv' unless ARGV[0]
+#ARGV[1]='Output' unless ARGV[1]
+#rcd_main *ARGV[0..1]
