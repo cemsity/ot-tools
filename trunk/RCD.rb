@@ -2,33 +2,39 @@ E='e'
 W='W'
 L='L'
 
-# From formatted input
+# From formatted input to output
 def ct_standard(input)
-  header = [input.shift, input.shift]
-  input.each do |x|
-    x[-2..-1]=[]
-  end
+  # cut off header - column names
+  header = [input.shift]
+
+  # cut off comments (the right two collunns)
+  # input.each do |x|
+  #   x[-2..-1]=[]
+  # end
+
+  # Label the headers appropriately
   header[1][0..3] = ['ERC#','Input','Winner','Loser']
-  res=[]
   
+  res = []
   until input.empty? do
-    block=[]
+    block = []
+
     begin
       block << input.shift
-      block[-1][1]=block[0][1]
+      block[-1][1] = block[0][1]
     end until input[0][1]
     
-    block.delete(win_line = block.select{|x|x[3]}[0])
+    block.delete( win_line = block.select{|x|x[3]}[0] )
     block.each do |x|
-      x[3]=x[2]
-      x[2]=win_line[2]
+      x[3] = x[2]
+      x[2] = win_line[2]
       for i in 4..x.size-3
-        x[i]=[E,W,L][win_line[i]<=>x[i]]
+        x[i] = [E,W,L][ win_line[i] <=> x[i] ]
       end
     end
     res += block
   end
-  header+res.map{|x|x[0..-3]}
+  header + res.map{ |x| x[0..-3] }
 end
 
 # rcd(ct)
@@ -67,7 +73,7 @@ def rcd(table)
   end
   
   (header+table).each do |row|
-    row[4...table[0].size-2] = row.values_at(*strata.flatten)}
+    row[4...table[0].size-2] = row.values_at(*strata.flatten)
   end
   table.sort
   strata.map{|x|x.map{|y|y-4}}
