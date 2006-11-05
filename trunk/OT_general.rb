@@ -2,7 +2,11 @@
 # Output - [table, header, top_comment]   ###, side_comments]
 def get_input(filename)
   # read and parse file
-  table = File.read(filename).split("\r").map{ |x| x.split(',') }
+  table = File.read(filename).split("\r").map do |x|
+    x.gsub!( /,\"(.*)\"$/ ) { $1.gsub(/,/, "<comma />") }
+    x.split(',')
+  end
+  
   top_comment = [table.shift]
   header = [table.shift]
   

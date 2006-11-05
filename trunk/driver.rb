@@ -20,6 +20,7 @@ def rcd_main(input_file,output_folder)
 
   p header_formatted
   vt_table_formatted.each { |r| p r }
+  p '-'*10;
 
   ct_table = ct_from_vt(vt_table.copy_mat)
   strata = rcd(copy_mat(ct_table))
