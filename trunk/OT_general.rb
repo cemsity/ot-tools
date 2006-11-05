@@ -2,9 +2,10 @@
 # Output - [table, header, top_comment]   ###, side_comments]
 def get_input(filename)
   # read and parse file
-  table = File.read(filename).split("\r").map{|x|x.split(',')}
+  table = File.read(filename).split("\r").map{ |x| x.split(',') }
   top_comment = [table.shift]
   header = [table.shift]
+  
   # side_comments = table.collect{ |x| y = x.pop; [x.pop, y] }
   # replace nil's with empty strings 
   # table.each{ |x| x.map!{ |y| y ? y : '' } }
@@ -23,7 +24,7 @@ def format_input(table, header)
   header = header.copy_mat
   # top_comment = top_comment.copy_mat
 
-  # add numbers to conditions in header
+  # add numbers to constraints in header
   for i in (1..(header[0].length-5)) do
     header[0][i+2] = "#{i}:#{header[0][i+2]}"
   end

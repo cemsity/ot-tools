@@ -23,7 +23,6 @@ def rcd_main(input_file,output_folder)
 
   ct_table = ct_from_vt(vt_table.copy_mat)
   strata = rcd(copy_mat(ct_table))
-  # p strata
   
   raise('No solution found') if strata == nil
   
