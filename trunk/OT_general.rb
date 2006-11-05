@@ -3,7 +3,7 @@
 def get_input(filename)
   # read and parse file
   table = File.read(filename).split("\r").map do |x|
-    x.gsub!( /,\"(.*)\"$/ ) { $1.gsub(/,/, "<comma />") }
+    x.gsub!( /,\"(.*)\"$/ ) { ',' + $1.gsub(/,/, "<comma />") }
     x.split(',')
   end
   
