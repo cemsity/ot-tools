@@ -3,8 +3,9 @@
 def get_input(filename)
   # read and parse file
   table = File.read(filename).split("\r").map do |x|
+    # get rid of commas in the last clause
     x.gsub!( /,\"(.*)\"$/ ) { ',' + $1.gsub(/,/, "<comma />") }
-    x.split(',')
+    x.split(',',-1).each{ |x| x.strip! }
   end
   
   top_comment = [table.shift]
@@ -42,12 +43,14 @@ def format_input(table, header)
     candidate_letter = 'a'
     row = table.shift
     # populate formatted_table with numbered rows
-    until row[1].nil? or table.empty? do
+    until row[1] == "" or table.empty? do
       # formatted_remarks << remarks.shift
       formatted_table << [word_number + candidate_letter] + row
       row = table.shift
       candidate_letter.succ!
     end
+    formatted_table << [word_number + candidate_letter] + row if table.empty?
+
     # remarks.shift
     word_number.succ!
   end
