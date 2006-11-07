@@ -38,7 +38,7 @@ def rcd_main(input_file,output_folder)
     sheet4.each{|row| writer << row}
   end
   
-  E[0...1] = 'e'
+  # E[0...1] = 'e'
 
   p '-'*10+"Strata"+'-'*10  
   strata = rcd(sheet4.copy_mat.map{ |x| x[4..-1] })
