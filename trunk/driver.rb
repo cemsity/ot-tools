@@ -7,7 +7,7 @@ require 'OT_general'
 require 'CSV'
 
 ARGV[0] = 'input.csv' unless ARGV[0]
-ARGV[1] = 'output' unless ARGV[1]
+ARGV[1] = 'Output' unless ARGV[1]
 
 def rcd_main(input_file,output_folder)
   vt_table, header, top_comment = *get_input(input_file)
