@@ -1,3 +1,7 @@
+E='e'
+W='W'
+L='L'
+
 # makes a "deep" copy of an array of arrays
 class Array
   def copy_mat

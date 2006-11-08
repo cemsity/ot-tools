@@ -1,6 +1,4 @@
-E='e'
-W='W'
-L='L'
+require 'Util.rb'
 
 # From formatted input to output
 def ct_standard(input)
@@ -55,7 +53,7 @@ end
 
 # rcd(ct)
 #   Input - CT array
-#   Output - the strata in that array
+#   Output - the strata in that array, and a boolean flag: TRUE iff success
 def rcd(table)
   header = table.shift
   strata = []
@@ -91,7 +89,7 @@ def rcd(table)
     table.compact!
   end
 
-  return strata
+  return [strata,remain.empty?]
   
   # (header+table).each do |row|
   #   row[4...table[0].size-2] = row.values_at(*strata.flatten)
