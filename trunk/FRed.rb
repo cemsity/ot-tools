@@ -26,7 +26,7 @@ def fred(input)
   fred_run(input,accumulator)
 end
 
-def fred_run(input,accumulator,layer='')
+def fred_run(input,accumulator,layer=[])
   fusion = fuse_rows(input)
   
   ilr = fusion.indices(W)
