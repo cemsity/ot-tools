@@ -1,10 +1,9 @@
 Tables_checked = []
 
-def fuse(x,y)
-  return y if x==E
-  return x if y==E
-  return y if x==W
-  return L
+def fuse(*els)
+  return L if els.index(L)
+  return W if els.index(W)
+  return E if els.index(E)
 end
 
 def fuse_rows(rows)
@@ -16,17 +15,28 @@ end
 
 # Input is the output of RCD
 def fred(input)
-  Fred_accumulator.clear
   comment = input.shift
-  (header = input.shift)[0..3]=[]
+  (header = input.shift).delete_indices(0..3)
   
-  input.map {|row| row[4..-1]}
+  input.delete_indices(0..3)
   
-  accumulator=[]
-  fred_run(input,accumulator)
+  condition = fred_run(input,[])
 end
 
-def fred_run(input,accumulator,layer=[])
+def fred_run(input,layer,cols=(0...input[0].size).to_a)
+  input=input.copy_mat
   fusion = fuse_rows(input)
-  
-  ilr = fusion.indices(W)
+  ilr = fusion.find_all(W)
+  accumulator = []
+  ilr.each do
+    |rule|
+    subtable = input.select {
+      |row|
+      row[rule]==E
+    }
+    subtable.del_cols(rule)
+    layer2 = layer + cols[rule]
+    
+    accumulator += fred_run(subtable,layer2,cols-[rule])
+  end
+end
