@@ -42,8 +42,8 @@ def rcd_main(input_file,output_folder)
   # E[0...1] = 'e'
 
   p '-'*10+"Strata"+'-'*10  
-  strata = rcd(sheet4.copy_mat.map{ |x| x[4..-1] })
-  raise('No solution found') if strata == nil
+  strata,remain = *rcd(sheet4.copy_mat.map{ |x| x[4..-1] })
+  raise('No solution found') if remain[0]
   p strata
 
   p '-'*10+"Sheet 6"+'-'*10

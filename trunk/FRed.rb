@@ -1,5 +1,9 @@
 Tables_checked = []
 
+def table_checked?(table)
+  Tables_checked.map{|x| x-table}.index([])
+end
+
 def fuse(*els)
   return L if els.index(L)
   return W if els.index(W)
@@ -39,4 +43,5 @@ def fred_run(input,layer,cols=(0...input[0].size).to_a)
     
     accumulator += fred_run(subtable,layer2,cols-[rule])
   end
+  
 end

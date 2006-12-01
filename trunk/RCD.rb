@@ -90,7 +90,7 @@ def rcd(table)
     table.compact!
   end
 
-  return [strata,remain.empty?]
+  return [strata,remain]
   
   # (header+table).each do |row|
   #   row[4...table[0].size-2] = row.values_at(*strata.flatten)

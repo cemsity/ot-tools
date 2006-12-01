@@ -6,11 +6,11 @@ L='L'
 # Output - [table, header, top_comment]   ###, side_comments]
 def get_input(filename)
   # read and parse file
-  table = File.read(filename).split(/[\r\n]/).map do |x|
+  (table = File.read(filename).split(/[\r\n]/).map do |x|
     # get rid of commas in the last clause
     x.gsub!( /,\"(.*)\"$/ ) { ',' + $1.gsub(/,/, "<comma />") }
     x.split(',',-1).each{ |x| x.strip! }
-  end
+  end).delete([])
   
   top_comment = [table.shift]
   header = [table.shift]
