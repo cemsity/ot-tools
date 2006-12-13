@@ -1,14 +1,24 @@
-
-# makes a "deep" copy of an array of arrays
-class Array
+class Object
+  # copy_mat
+  #  returns self.clone if possible, or self otherwise.
   def copy_mat
-    map{ |r| r.map{|x|x.clone} }
+    begin
+      clone
+    rescue
+      self
+    end
+  end
+end
+
+class Array
+  
+  # makes a "deep" copy of an array of arrays
+  def copy_mat
+    map{ |r| r.copy_mat }
   end
   
-  def rest
-    self[1..-1]
-  end
-  
+  # Arr.delete_indices(i1, i2, ...)
+  # removes Arr[i1],Arr[i2],... and returns them in the order they are found in Arr
   def delete_indices(*where)
     where.sort.reverse.map {
       |x|
@@ -16,6 +26,8 @@ class Array
     }.reverse
   end
   
+  # Arr.delete_cols(c1, c2, ...)
+  # removes the c1th, c2th, ... columns of Arr and returns them in the order they are found in Arr
   def del_cols(*cols)
     map {
       |row|
@@ -23,8 +35,23 @@ class Array
     }
   end
 
+  # Arr.find_all(obj)
+  # returns an array of all indices i such that obj===Arr[i]
   def find_all(obj)
     (0...size).select {|x| self[x]==obj}
+  end
+  
+  # set_cols(obj, [c1,c2,...])
+  #  sets every element of the ci-th column to obj.copy; returns obj
+  def set_cols(obj, cols)
+    each do
+      |row|
+      cols.each do
+        |col|
+        row[col]=obj.copy
+      end
+    end
+    obj
   end
 end
 
@@ -36,8 +63,8 @@ end
 
 # print_mat(matrix[,delim])
 # Input - Matrix is a 2-dimensional array. Delim is an optional delimiter
-# Output - Prints the matrix to the screen, with the elements of the rows separated by delim.
-#   If delim is nil or omitted, prints each row as an array
+# Output - Prints the matrix to the screen, with the elements of the rows separated by delim
+# If delim is nil or omitted, prints each row as an array
 def print_mat(matrix, delim=nil)
   puts matrix.map{|x| delim ? x.join(delim) : x.inspect}
 end
