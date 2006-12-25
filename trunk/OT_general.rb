@@ -1,6 +1,4 @@
-E='e'
-W='W'
-L='L'
+require 'Util'  
 
 # Input - filename: name of file
 # Output - [table, header, top_comment]   ###, side_comments]

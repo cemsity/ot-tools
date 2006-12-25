@@ -1,3 +1,24 @@
+E='e'
+W='W'
+L='L'
+
+[E,W,L].each do
+  |s|
+  def s.clone
+    self
+  end
+end
+def L.<=>(x)
+  x==L ? 0 : 1
+end
+def E.<=>(x)
+  x==L ? -1 : x==W ? -1 : 0
+end
+def W.<=>(x)
+  x==L ? -1 : x==W ? 0 : 1
+end
+
+
 class Object
   # copy_mat
   #  returns self.clone if possible, or self otherwise.
@@ -7,6 +28,18 @@ class Object
     rescue
       self
     end
+  end
+  def <(x)
+    (self<=>x)==-1
+  end
+  def >(x)
+    (self<=>x)==1
+  end
+  def <=(x)
+    (self<=>x)!=1
+  end
+  def >=(x)
+    (self<=>x)!=-1
   end
 end
 
@@ -40,7 +73,7 @@ class Array
   def find_all(obj)
     (0...size).select {|x| self[x]==obj}
   end
-  
+
   # set_cols(obj, [c1,c2,...])
   #  sets every element of the ci-th column to obj.copy; returns obj
   def set_cols(obj, cols)

@@ -43,7 +43,7 @@ def ct_standard(input)
       
       # populate the CT
       for i in 4..cand.size-3
-        p win_line
+        #p win_line
         cand[i] = [E,L,W][ win_line[i] <=> cand[i] ]
       end
     end
@@ -54,7 +54,7 @@ end
 
 # rcd(ct)
 #   Input - CT array
-#   Output - the strata in that array, and a boolean flag: TRUE iff success
+#   Output - the strata in an array, and the unrepresentable rows in an array
 def rcd(table)
   header = table.shift
   strata = []
