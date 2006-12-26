@@ -40,7 +40,6 @@ def rcd_main(input_file,output_folder)
     sheet4.each{|row| writer << row}
   end
   
-  E[0...1] = 'e'
   puts '-'*10+"Strata"+'-'*10  
   strata,remain = *rcd(sheet4.copy_mat.map{ |x| x[4..-1] })
   raise('No solution found') if remain[0]
@@ -53,10 +52,19 @@ def rcd_main(input_file,output_folder)
   CSV.open(output_folder+'/Sheet6.csv', 'w') do |writer|
     sheet6.each{|row| writer << row}
   end
-  $s6 = sheet6
-    
-  #frf, lbl = *fred(sheet6)
-  #print_mat frf
+
+  fnf, lbl = fred(sheet6.copy_mat)
+  Comps[0..-1] = [W,L,E]
+  fnf = fnf.zip(lbl.map!{|row| 'A'+row.map{|num| sheet6[0][num+4][0..0]}.join}).sort.map{|row| [row[-1]]+row[0]}
+
+  puts '-'*10+"Sheet 7"+'-'*10
+  sheet7 = [['Fus']+sheet6[0][4..-1]] + fnf
+  sheet7.each { |r| p r }
+  
+  CSV.open(output_folder+'/Sheet7.csv', 'w') do |writer|
+    sheet7.each{|row| writer << row}
+  end
+  
 end
 
 rcd_main input_file,output_folder

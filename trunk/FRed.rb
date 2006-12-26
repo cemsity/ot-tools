@@ -2,8 +2,8 @@ require 'Util'
 
 Checked = []
 def table_check(l)
-  res = !Checked.map{|x|x-l}.index([])
-  Checked << l if res
+  res = Checked.map{|x|(x-l)|(l-x)}.index([])
+  Checked << l unless res
   res
 end
 
@@ -21,23 +21,25 @@ def fuse_rows(rows)
   rows.inject(rows[0]) do
     |r1, r2|
     r1.zip(r2).map{|x| fuse(*x)}
-  end
+  end.to_a
 end
 
 def entails(r1, r2)
+  return false if r1.size<r2.size
   r1.zip(r2).each do
     |x|
-    return false if x[0]<x[2]
+    return false if x[0]<x[1]
   end
   true
 end
 
 # Input is the output of RCD
 def fred(input)
+  Comps[0..2] = [E,W,L]
   header = input.shift  
   input.del_cols(*0..3)
   
-  return fred_run(input)
+  fred_run(input)
 end
 
 def fred_run(input,layer=[])
@@ -45,7 +47,7 @@ def fred_run(input,layer=[])
   lbls = []
   n=input.size
   #0. Base step
-  return [] if input==[]
+  return [[],[]] if input==[]
   
   #1. Fuse all
   fa = fuse_rows(input)
@@ -58,6 +60,7 @@ def fred_run(input,layer=[])
     res[i] = input.select{|r| r[i]==E}
   end
   (tr = ilc.inject([]){|ar1,i| ar1 + res[i]}).uniq!
+  ilc.reject!{|x| res[x]==[]}
   
   #3. Check entailment
   if fa.uniq==[W] then
@@ -65,7 +68,7 @@ def fred_run(input,layer=[])
   elsif fa.uniq==[L] then
     $FAIL = input.copy_mat
     return
-  elsif entails(fuse_rows(tr),fa)
+  elsif fuse_rows(tr)==fa
     hold_fus = false
   end
   

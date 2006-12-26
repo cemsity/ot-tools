@@ -1,23 +1,17 @@
 E='e'
 W='W'
 L='L'
+Comps = [W,E,L]
 
 [E,W,L].each do
   |s|
   def s.clone
     self
   end
+  def s.<=>(x)
+    Comps.index(self) <=> Comps.index(x)
+  end
 end
-def L.<=>(x)
-  x==L ? 0 : 1
-end
-def E.<=>(x)
-  x==L ? -1 : x==W ? -1 : 0
-end
-def W.<=>(x)
-  x==L ? -1 : x==W ? 0 : 1
-end
-
 
 class Object
   # copy_mat
