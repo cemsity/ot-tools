@@ -34,20 +34,20 @@ def entails(r1, r2)
 end
 
 # Input is the output of RCD
+# Output is [success, lbls, mib, skb]
 def fred(input)
   Comps[0..2] = [E,W,L]
   header = input.shift  
   input.del_cols(*0..3)
   
-  fred_run(input)
+  arg = [[],[],[]]
+  [fred_run(input,[],*arg),*arg]
 end
 
-def fred_run(input,layer=[])
-  ret = []
-  lbls = []
+def fred_run(input, layer, lbls, mib, skb)
   n=input.size
   #0. Base step
-  return [[],[]] if input==[]
+  return true if input==[]
   
   #1. Fuse all
   fa = fuse_rows(input)
@@ -59,31 +59,29 @@ def fred_run(input,layer=[])
   ilc.each do |i|
     res[i] = input.select{|r| r[i]==E}
   end
-  (tr = ilc.inject([]){|ar1,i| ar1 + res[i]}).uniq!
+  ftr = fuse_rows(ilc.inject([]){|ar1,i| ar1 + res[i]})
   ilc.reject!{|x| res[x]==[]}
   
   #3. Check entailment
   if fa.uniq==[W] then
     hold_fus = false
   elsif fa.uniq==[L] then
-    $FAIL = input.copy_mat
-    return
-  elsif fuse_rows(tr)==fa
+    $fail = input.copy_mat
+    return false
+  elsif ftr==fa
     hold_fus = false
   end
   
   #4. Recurse
   if hold_fus then
-    ret << fa
+    mib << fa
+    skb << fa.zip(ftr).map{|ar| ar[1]==L ? E : ar[0]}
     lbls << layer
   end
   for k in ilc do
     l2 = layer|[k]
     next if table_check(l2)
-    fnf,lbl_add = *fred_run(res[k], l2)
-    return if $FAIL
-    ret += fnf
-    lbls += lbl_add
+    return false unless fred_run(res[k], l2, lbls, mib, skb)
   end
-  [ret,lbls]
+  true
 end
