@@ -15,7 +15,7 @@ def rcd_main(input_file,output_folder)
   
   sheet3 = header_formatted + vt_table_formatted
 
-  puts '-'*10+"Sheet 3"+'-'*10
+  puts '-'*10+"Sheet 3: Input-Formatted"+'-'*10
   sheet3.each { |r| p r }
   
   CSV.open(output_folder+'/Sheet3.csv', 'w') do |writer|
@@ -24,7 +24,7 @@ def rcd_main(input_file,output_folder)
 
   sheet4 = ct_standard(header_formatted.copy_mat + vt_table_formatted.copy_mat)
 
-  puts '-'*10+"Sheet 4"+'-'*10
+  puts '-'*10+"Sheet 4: CT"+'-'*10
   sheet4.each { |r| p r }
   
   CSV.open(output_folder+'/Sheet4.csv', 'w') do |writer|
@@ -33,7 +33,7 @@ def rcd_main(input_file,output_folder)
 
   E[0...1] = ''
 
-  puts '-'*10+"Sheet 5"+'-'*10
+  puts '-'*10+"Sheet 5: CT no Es"+'-'*10
   sheet4.each { |r| p r }
   
   CSV.open(output_folder+'/Sheet5.csv', 'w') do |writer|
@@ -45,7 +45,7 @@ def rcd_main(input_file,output_folder)
   raise('No solution found') if remain[0]
   p strata
 
-  puts '-'*10+"Sheet 6"+'-'*10
+  puts '-'*10+"Sheet 6: RCD view"+'-'*10
   sheet6 = sort_by_strata(sheet4.copy_mat,strata)
   sheet6.each { |r| p r }
   
@@ -53,18 +53,26 @@ def rcd_main(input_file,output_folder)
     sheet6.each{|row| writer << row}
   end
 
-  fnf, lbl = fred(sheet6.copy_mat)
+  success, lbl, mib, skb = fred(sheet6.copy_mat)
   Comps[0..-1] = [W,L,E]
-  fnf = fnf.zip(lbl.map!{|row| 'A'+row.map{|num| sheet6[0][num+4][0..0]}.join}).sort.map{|row| [row[-1]]+row[0]}
+  mib = mib.zip(lbl.map{|row| 'A'+row.map{|num| sheet6[0][num+4][0..0]}.join}).sort.map{|row| [row[-1]]+row[0]}
+  skb = skb.zip(lbl.map{|row| 'A'+row.map{|num| sheet6[0][num+4][0..0]}.join}).sort.map{|row| [row[-1]]+row[0]}
 
-  puts '-'*10+"Sheet 7"+'-'*10
-  sheet7 = [['Fus']+sheet6[0][4..-1]] + fnf
+  puts '-'*10+"Sheet 7: Most Informative Basis"+'-'*10
+  sheet7 = [['Fus']+sheet6[0][4..-1]] + mib
   sheet7.each { |r| p r }
   
   CSV.open(output_folder+'/Sheet7.csv', 'w') do |writer|
     sheet7.each{|row| writer << row}
   end
   
+  puts '-'*10+"Sheet 8: Skeletal Basis"+'-'*10
+  sheet8 = [['Fus']+sheet6[0][4..-1]] + skb
+  sheet8.each { |r| p r }
+  
+  CSV.open(output_folder+'/Sheet8.csv', 'w') do |writer|
+    sheet8.each{|row| writer << row}
+  end
 end
 
 rcd_main input_file,output_folder
