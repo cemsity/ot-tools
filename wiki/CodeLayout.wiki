@@ -5,6 +5,15 @@
 This document will contain the conceptual layout of different parts of ot-tools.
 
 
+= Summary =
+
+Three chunks of code:
+
+  * Excel application - self explanatory
+  * Web based application - self explanatory
+  * Shared code - The RCD and FRED algorithms, working on Ruby data structures.
+
+
 = Details =
 
 ==Excel application==
@@ -23,17 +32,3 @@ This document will contain the conceptual layout of different parts of ot-tools.
 ==Web based application==
 
 -TBD-
-
-==Shared code==
-
-===Excel application===
-
-See above
-
-===Web based application===
-
-See above
-
-===Shared code===
-
-The RCD and FRED algorithms, working on Ruby data structures.
