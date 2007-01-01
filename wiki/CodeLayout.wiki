@@ -1,0 +1,39 @@
+#summary How components of different ot-tools applications will be laid out.
+
+= Introduction =
+
+This document will contain the conceptual layout of different parts of ot-tools.
+
+
+= Details =
+
+==Excel application==
+
+===VBA part===
+  * Validates input in sheet
+  * Outputs input to file
+  * Runs ruby scripts on file
+  * Imports output from ruby scripts to excel
+
+===Ruby part===
+  * Read file input
+  * Run general ruby code
+  * Write output
+
+==Web based application==
+
+-TBD-
+
+==Shared code==
+
+===Excel application===
+
+See above
+
+===Web based application===
+
+See above
+
+===Shared code===
+
+The RCD and FRED algorithms, working on Ruby data structures.
