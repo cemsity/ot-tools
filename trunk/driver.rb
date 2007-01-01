@@ -1,7 +1,3 @@
-puts DATA
-return
-
-
 # driver.rb - this will be the command-line interface for the RCD algorithms
 # Usage: "ruby driver.rb <input file> <output directory>"
 
@@ -20,16 +16,16 @@ def rcd_main(input_file,output_folder)
   sheet3 = header_formatted + vt_table_formatted
 
   puts '-'*10+"Sheet 3: Input-Formatted"+'-'*10
-  print_mat(sheet3,"\t") #sheet3.each { |r| p r }
+  print_mat(sheet3,"\t")
   
   CSV.open(output_folder+'/Sheet3.csv', 'w') do |writer|
-    sheet3.each{|row| writer << row.map{|x| x.gsub("<comma />", ",")}}
+    sheet3.each{|row| writer << row}
   end
 
   sheet4 = ct_standard(header_formatted.copy_mat + vt_table_formatted.copy_mat)
 
   puts '-'*10+"Sheet 4: CT"+'-'*10
-  print_mat(sheet4,"\t") #sheet4.each { |r| p r }
+  print_mat(sheet4,"\t")
   
   CSV.open(output_folder+'/Sheet4.csv', 'w') do |writer|
     sheet4.each{|row| writer << row}
@@ -38,7 +34,7 @@ def rcd_main(input_file,output_folder)
   E[0...1] = ''
 
   puts '-'*10+"Sheet 5: CT no Es"+'-'*10
-  print_mat(sheet4,"\t") #sheet4.each { |r| p r }
+  print_mat(sheet4,"\t")
   
   CSV.open(output_folder+'/Sheet5.csv', 'w') do |writer|
     sheet4.each{|row| writer << row}
@@ -51,7 +47,7 @@ def rcd_main(input_file,output_folder)
 
   puts '-'*10+"Sheet 6: RCD view"+'-'*10
   sheet6 = sort_by_strata(sheet4.copy_mat,strata)
-  print_mat(sheet6,"\t") #sheet6.each { |r| p r }
+  print_mat(sheet6,"\t")
   
   CSV.open(output_folder+'/Sheet6.csv', 'w') do |writer|
     sheet6.each{|row| writer << row}
@@ -64,7 +60,7 @@ def rcd_main(input_file,output_folder)
 
   puts '-'*10+"Sheet 7: Most Informative Basis"+'-'*10
   sheet7 = [['Fus']+sheet6[0][4..-1]] + mib
-  print_mat(sheet7,"\t") #sheet7.each { |r| p r }
+  print_mat(sheet7,"\t")
   
   CSV.open(output_folder+'/Sheet7.csv', 'w') do |writer|
     sheet7.each{|row| writer << row}
@@ -72,7 +68,7 @@ def rcd_main(input_file,output_folder)
   
   puts '-'*10+"Sheet 8: Skeletal Basis"+'-'*10
   sheet8 = [['Fus']+sheet6[0][4..-1]] + skb
-  print_mat(sheet8,"\t") #sheet8.each { |r| p r }
+  print_mat(sheet8,"\t")
   
   CSV.open(output_folder+'/Sheet8.csv', 'w') do |writer|
     sheet8.each{|row| writer << row}

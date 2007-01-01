@@ -7,30 +7,15 @@ def table_check(l)
   res
 end
 
-# fuse(c1, c2, ...)
-#  ci = E or W or L
-#  returns the fusion of the ci's
-def fuse(*els)
-  els.max
-end
-
 # fuse_rows([r1, r2, ...])
 #  ri is a rows of E, W, and L
 #  returns the fusion of the rows
+# Comps must be [E,W,L]
 def fuse_rows(rows)
   rows.inject(rows[0]) do
     |r1, r2|
-    r1.zip(r2).map{|x| fuse(*x)}
+    r1.zip(r2).map{|x| x.max}
   end.to_a
-end
-
-def entails(r1, r2)
-  return false if r1.size<r2.size
-  r1.zip(r2).each do
-    |x|
-    return false if x[0]<x[1]
-  end
-  true
 end
 
 # Input is the output of RCD
@@ -59,13 +44,13 @@ def fred_run(input, layer, lbls, mib, skb)
   ilc.each do |i|
     res[i] = input.select{|r| r[i]==E}
   end
-  ftr = fuse_rows(ilc.inject([]){|ar1,i| ar1 + res[i]})
   ilc.reject!{|x| res[x]==[]}
+  ftr = fuse_rows(ilc.inject([]){|ar1,i| ar1 + res[i]})
   
   #3. Check entailment
-  if fa.uniq==[W] then
+  if !fa.index(L) then
     hold_fus = false
-  elsif fa.uniq==[L] then
+  elsif !fa.index(W) then
     $fail = input.copy_mat
     return false
   elsif ftr==fa
