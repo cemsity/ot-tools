@@ -23,18 +23,6 @@ class Object
       self
     end
   end
-  def <(x)
-    (self<=>x)==-1
-  end
-  def >(x)
-    (self<=>x)==1
-  end
-  def <=(x)
-    (self<=>x)!=1
-  end
-  def >=(x)
-    (self<=>x)!=-1
-  end
 end
 
 class Array
@@ -66,19 +54,6 @@ class Array
   # returns an array of all indices i such that obj===Arr[i]
   def find_all(obj)
     (0...size).select {|x| self[x]==obj}
-  end
-
-  # set_cols(obj, [c1,c2,...])
-  #  sets every element of the ci-th column to obj.copy; returns obj
-  def set_cols(obj, cols)
-    each do
-      |row|
-      cols.each do
-        |col|
-        row[col]=obj.copy
-      end
-    end
-    obj
   end
 end
 

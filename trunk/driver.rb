@@ -53,13 +53,9 @@ def rcd_main(input_file,output_folder)
     sheet6.each{|row| writer << row}
   end
 
-  success, lbl, mib, skb = fred(sheet6.copy_mat)
-  Comps[0..-1] = [W,L,E]
-  mib = mib.zip(lbl.map{|row| 'A'+row.map{|num| sheet6[0][num+4][0..0]}.join}).sort.map{|row| [row[-1]]+row[0]}
-  skb = skb.zip(lbl.map{|row| 'A'+row.map{|num| sheet6[0][num+4][0..0]}.join}).sort.map{|row| [row[-1]]+row[0]}
+  success, sheet7, sheet8 = fred(sheet6, strata)
 
   puts '-'*10+"Sheet 7: Most Informative Basis"+'-'*10
-  sheet7 = [['Fus']+sheet6[0][4..-1]] + mib
   print_mat(sheet7,"\t")
   
   CSV.open(output_folder+'/Sheet7.csv', 'w') do |writer|
@@ -67,7 +63,6 @@ def rcd_main(input_file,output_folder)
   end
   
   puts '-'*10+"Sheet 8: Skeletal Basis"+'-'*10
-  sheet8 = [['Fus']+sheet6[0][4..-1]] + skb
   print_mat(sheet8,"\t")
   
   CSV.open(output_folder+'/Sheet8.csv', 'w') do |writer|

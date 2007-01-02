@@ -19,14 +19,24 @@ def fuse_rows(rows)
 end
 
 # Input is the output of RCD
-# Output is [success, lbls, mib, skb]
-def fred(input)
+# Output is [success, mib_sheet, skb_sheet]
+def fred(input, strata)
+  strata = strata.flatten.map{|x| (x+1).to_s}
   Comps[0..2] = [E,W,L]
   header = input.shift  
   input.del_cols(*0..3)
   
   arg = [[],[],[]]
-  [fred_run(input,[],*arg),*arg]
+  success, lbl, mib, skb = fred_run(input,[],*arg),*arg
+  
+  Comps[0..-1] = [W,L,E]
+  mib = mib.zip(lbl.map{|row| 'A'+row.map{|num| strata[num]}.join}).sort.map{|row| [row[-1]]+row[0]}
+  skb = skb.zip(lbl.map{|row| 'A'+row.map{|num| strata[num]}.join}).sort.map{|row| [row[-1]]+row[0]}
+  
+  mib_sheet = [['Fus']+header[4..-1]] + mib
+  skb_sheet = [['Fus']+header[4..-1]] + skb
+  
+  [success, mib_sheet, skb_sheet]
 end
 
 def fred_run(input, layer, lbls, mib, skb)
