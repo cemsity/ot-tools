@@ -4,7 +4,7 @@ require 'Util'
 # Output - [table, header, top_comment]   ###, side_comments]
 def get_input(filename)
   # read and parse file
-  (table=CSV.read('winput.csv')).each{|x| x.map!{|y| y.to_s}}
+  (table=CSV.read(filename)).each{|x| x.map!{|y| y.to_s}}
   
   top_comment = [table.shift]
   header = [table.shift]

@@ -20,11 +20,11 @@ end
 
 # Input is the output of RCD
 # Output is [success, mib_sheet, skb_sheet]
-def fred(input, strata)
+def fred(input, strata, n=4)
   strata = strata.flatten.map{|x| (x+1)}
   Comps[0..2] = [E,W,L]
   header = input.shift  
-  input.each{|row| row[0..3]=[]}
+  input.each{|row| row[0...n]=[]}
   
   arg = [[],[],[]]
   success = fred_run(input,[],(lbl=[]),(mib=[]),(skb=[]))

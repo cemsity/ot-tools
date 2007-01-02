@@ -1,74 +1,38 @@
 # driver.rb - this will be the command-line interface for the RCD algorithms
 # Usage: "ruby driver.rb <input file> <output directory>"
 
-
 require 'RCD'
 require 'Util'
 require 'OT_general'
 require 'CSV'
 require 'FRed'
-input_file = ARGV[0] ? ARGV[0] : 'winput.csv'
+input_file =  ARGV[0] ? ARGV[0] : 'Input/polish_mac.csv' #input.csv'
 output_folder = ARGV[1] ? ARGV[1] : 'Output'
 
 def rcd_main(input_file,output_folder)
-  vt_table, header, top_comment = *get_input(input_file)
+  Out_fold[0..-1] = output_folder
+  vt_table, header, Top_comm[0..-1] = *get_input(input_file)
   vt_table_formatted, header_formatted = *format_input(vt_table, header)
-  
-  sheet3 = header_formatted + vt_table_formatted
 
-  puts '-'*10+"Sheet 3: Input-Formatted"+'-'*10
-  print_mat(sheet3,"\t")
-  
-  CSV.open(output_folder+'/Sheet3.csv', 'w') do |writer|
-    sheet3.each{|row| writer << row}
-  end
+  output((sheet3 = header_formatted + vt_table_formatted), "Input-Formatted", 3)
 
-  sheet4 = ct_standard(header_formatted + vt_table_formatted)
-
-  puts '-'*10+"Sheet 4: CT"+'-'*10
-  print_mat(sheet4,"\t")
-  
-  CSV.open(output_folder+'/Sheet4.csv', 'w') do |writer|
-    sheet4.each{|row| writer << row}
-  end
+  output((sheet4=ct_standard(sheet3)), "CT", 4)
 
   E[0...1] = ''
 
-  puts '-'*10+"Sheet 5: CT no Es"+'-'*10
-  print_mat(sheet4,"\t")
-  
-  CSV.open(output_folder+'/Sheet5.csv', 'w') do |writer|
-    sheet4.each{|row| writer << row}
-  end
-  
+  output(sheet4, "CT no E", 5)
+
   puts '-'*10+"Strata"+'-'*10  
   strata,remain = *rcd(sheet4.map{ |x| x[4..-1] })
-  raise('No solution found') if remain[0]
+  #raise('No solution found') if remain[0]
   p strata
 
-  puts '-'*10+"Sheet 6: RCD view"+'-'*10
   sheet6 = sort_by_strata(sheet4,strata)
-  print_mat(sheet6,"\t")
-  
-  CSV.open(output_folder+'/Sheet6.csv', 'w') do |writer|
-    sheet6.each{|row| writer << row}
-  end
+  output(sheet6, "RCD View", 6)
 
   success, sheet7, sheet8 = fred(sheet6, strata)
-
-  puts '-'*10+"Sheet 7: Most Informative Basis"+'-'*10
-  print_mat(sheet7,"\t")
-  
-  CSV.open(output_folder+'/Sheet7.csv', 'w') do |writer|
-    sheet7.each{|row| writer << row}
-  end
-  
-  puts '-'*10+"Sheet 8: Skeletal Basis"+'-'*10
-  print_mat(sheet8,"\t")
-  
-  CSV.open(output_folder+'/Sheet8.csv', 'w') do |writer|
-    sheet8.each{|row| writer << row}
-  end
+  output(sheet7, "Most Informative Basis", 7)
+  output(sheet8, "Skeletal Basis", 8)
 end
 
 rcd_main input_file,output_folder
