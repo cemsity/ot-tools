@@ -21,13 +21,13 @@ end
 # Input is the output of RCD
 # Output is [success, mib_sheet, skb_sheet]
 def fred(input, strata)
-  strata = strata.flatten.map{|x| (x+1).to_s}
+  strata = strata.flatten.map{|x| (x+1)}
   Comps[0..2] = [E,W,L]
   header = input.shift  
-  input.del_cols(*0..3)
+  input.each{|row| row[0..3]=[]}
   
   arg = [[],[],[]]
-  success, lbl, mib, skb = fred_run(input,[],*arg),*arg
+  success = fred_run(input,[],(lbl=[]),(mib=[]),(skb=[]))
   
   Comps[0..-1] = [W,L,E]
   mib = mib.zip(lbl.map{|row| 'A'+row.map{|num| strata[num]}.join}).sort.map{|row| [row[-1]]+row[0]}
@@ -61,8 +61,8 @@ def fred_run(input, layer, lbls, mib, skb)
   if !fa.index(L) then
     hold_fus = false
   elsif !fa.index(W) then
-    $fail = input.copy_mat
-    return false
+    $fail = input
+    #return false
   elsif ftr==fa
     hold_fus = false
   end

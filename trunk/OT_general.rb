@@ -23,9 +23,9 @@ def format_input(table, header)
   # formatted_remarks = []
   
   # deep copy arguments
-  table = table.copy_mat
-  header = header.copy_mat
-  # top_comment = top_comment.copy_mat
+  table = table
+  header = header
+  # top_comment = top_comment
 
   # add numbers to constraints in header
   for i in (1..(header[0].length-5)) do

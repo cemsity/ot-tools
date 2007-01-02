@@ -1,6 +1,7 @@
 # driver.rb - this will be the command-line interface for the RCD algorithms
 # Usage: "ruby driver.rb <input file> <output directory>"
 
+
 require 'RCD'
 require 'Util'
 require 'OT_general'
@@ -22,7 +23,7 @@ def rcd_main(input_file,output_folder)
     sheet3.each{|row| writer << row}
   end
 
-  sheet4 = ct_standard(header_formatted.copy_mat + vt_table_formatted.copy_mat)
+  sheet4 = ct_standard(header_formatted + vt_table_formatted)
 
   puts '-'*10+"Sheet 4: CT"+'-'*10
   print_mat(sheet4,"\t")
@@ -41,12 +42,12 @@ def rcd_main(input_file,output_folder)
   end
   
   puts '-'*10+"Strata"+'-'*10  
-  strata,remain = *rcd(sheet4.copy_mat.map{ |x| x[4..-1] })
+  strata,remain = *rcd(sheet4.map{ |x| x[4..-1] })
   raise('No solution found') if remain[0]
   p strata
 
   puts '-'*10+"Sheet 6: RCD view"+'-'*10
-  sheet6 = sort_by_strata(sheet4.copy_mat,strata)
+  sheet6 = sort_by_strata(sheet4,strata)
   print_mat(sheet6,"\t")
   
   CSV.open(output_folder+'/Sheet6.csv', 'w') do |writer|
