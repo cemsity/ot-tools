@@ -27,3 +27,16 @@ def split_cand(cand)
   n = cand=~/\d/
   [cand[0...n],cand[n+1..-1]]
 end
+
+
+Out_fold = ""
+Top_comm = []
+def output(table, capt, num=nil)
+  puts '-'*10 + (num ? "Sheet #{num}: " : '') + capt + '-'*10
+  print_mat table, "\t"
+  return unless num
+  sheet = num.instance_of?(String) ? num : "/Sheet#{num}"
+  CSV.open(Out_fold+sheet+".csv", 'w') do |writer|
+    (Top_comm+table).each{|row| writer << row}
+  end
+end
