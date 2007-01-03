@@ -14,7 +14,7 @@ def rcd_main(input_file,output_folder)
   vt_table, header, Top_comm[0..-1] = *get_input(input_file)
   vt_table_formatted, header_formatted = *format_input(vt_table, header)
 
-  output((sheet3 = header_formatted + vt_table_formatted), "Input-Formatted", 3)
+  output((sheet3=header_formatted + vt_table_formatted), "Input-Formatted", 3)
 
   output((sheet4=ct_standard(sheet3)), "CT", 4)
 
