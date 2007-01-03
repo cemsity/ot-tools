@@ -23,7 +23,6 @@ def rcd_main(input_file,output_folder)
   output(sheet4, "CT no E", 5)
 
   strata,remain = *rcd(sheet4.map{ |x| x[4..-1] })
-  output strata,"Strata"
   puts '-'*10+"Strata"+'-'*10  
   p strata
 
