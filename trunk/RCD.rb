@@ -5,11 +5,6 @@ def ct_standard(input)
   # cut off header - column names
   header = [input.shift]
 
-  # cut off comments (the right two collunns)
-  # input.each do |x|
-  #   x[-2..-1]=[]
-  # end
-
   # Label the headers appropriately, chop off remarks
   header.first[0..3] = ['ERC#','Input','Winner','Loser']
   header.first[-2..-1] = []
@@ -91,13 +86,6 @@ def rcd(table)
   end
 
   return [strata,remain]
-  
-  # (header+table).each do |row|
-  #   row[4...table[0].size-2] = row.values_at(*strata.flatten)
-  # end
-  # table.sort
-  # strata.map{|x|x.map{|y|y-4}}
-  # return [header+table, strata]
 end
 
 # takes a table such as in sheet 5 and a strata ordering
@@ -117,12 +105,8 @@ def sort_by_strata(table, strata)
   ordered_rows = []
   
   (0...strata.flatten.size).each do |col|
-    # p "#{col}!!!"
-    # p ordered_cols
     ordered_cols.clone.each do |row|
-      # p row
       if row[col+4] == W
-        # p "copying row #{row.first} for col #{col}"
         ordered_rows << ordered_cols.delete(row)
       end
     end

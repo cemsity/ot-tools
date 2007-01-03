@@ -40,3 +40,34 @@ def output(table, capt, num=nil)
     (Top_comm+table).each{|row| writer << row}
   end
 end
+
+
+class Collector
+  instance_methods.each do
+    |mth|
+    undef_method mth.to_sym
+  end
+  attr_accessor :objects, :danger
+  def initialize(obs)
+    self.objects=obs
+    self.danger=false
+  end
+  def method_missing(*args, &blk)
+    mth = danger ? :map! : :map
+    self.danger=false
+    objects.send(mth) do
+      |obj|
+      obj.send(*args, &blk)
+    end
+  end
+  def r
+    self.danger=true
+    self
+  end
+end
+
+module Enumerable
+  def every
+    Collector.new(self)
+  end
+end

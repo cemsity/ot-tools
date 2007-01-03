@@ -2,7 +2,7 @@ require 'Util'
 
 Checked = []
 def table_check(l)
-  res = Checked.map{|x|(x-l)|(l-x)}.index([])
+  res = Checked.map{|x|(x-l)|(l-x)}.index([]) ###
   Checked << l unless res
   res
 end
@@ -14,17 +14,17 @@ end
 def fuse_rows(rows)
   rows.inject(rows[0]) do
     |r1, r2|
-    r1.zip(r2).map{|x| x.max}
+    r1.zip(r2).every.max
   end.to_a
 end
 
 # Input is the output of RCD
 # Output is [success, mib_sheet, skb_sheet]
 def fred(input, strata, n=4)
-  strata = strata.flatten.map{|x| (x+1)}
+  strata = strata.flatten.every+1
   Comps[0..2] = [E,W,L]
   header = input.shift  
-  input.each{|row| row[0...n]=[]}
+  input.every[0...n]=[]
   
   arg = [[],[],[]]
   success = fred_run(input,[],(lbl=[]),(mib=[]),(skb=[]))
