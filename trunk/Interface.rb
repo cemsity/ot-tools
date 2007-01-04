@@ -27,4 +27,4 @@ calc_button = TkButton.new(root) {
 root.bind("Control-Key-r") {rcd_main(in_var.value, out_var.value)}
 calc_button.grid("row"=>1,"column"=>1)
 
-#Tk.mainloop
+Tk.mainloop

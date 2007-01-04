@@ -12,9 +12,9 @@ Comps = [W,E,L]
 end
 
 # print_mat(matrix[,delim])
-# Input - Matrix is a 2-dimensional array. Delim is an optional delimiter
-# Output - Prints the matrix to the screen, with the elements of the rows separated by delim
-# If delim is nil or omitted, prints each row as an array
+#  Input - Matrix is a 2-dimensional array. Delim is an optional delimiter
+#  Output - Prints the matrix to the screen, with the elements of the rows separated by delim
+#  If delim is nil or omitted, prints each row as an array
 def print_mat(matrix, delim=nil)
   puts matrix.map{|x| delim ? x.join(delim) : x.inspect}
 end
@@ -31,6 +31,9 @@ end
 
 Out_fold = ""
 Top_comm = []
+# output(table, capt, [num])
+#  writes table to the screen, labeled with capt
+#  writes out table (as a spreadsheet) to "Sheet#{num}.csv" if num is provided
 def output(table, capt, num=nil)
   puts '-'*10 + (num ? "Sheet #{num}: " : '') + capt + '-'*10
   print_mat table, "\t"
@@ -41,10 +44,9 @@ def output(table, capt, num=nil)
   end
 end
 
-
 class Collector
   for mth in instance_methods
-    undef_method mth.to_sym
+    undef_method mth
   end
   def initialize(obs)
     @objects=obs
@@ -65,6 +67,8 @@ class Collector
 end
 
 module Enumerable
+  # anEnum.every
+  #  If you can use this properly, you get a cookie
   def every
     Collector.new(self)
   end

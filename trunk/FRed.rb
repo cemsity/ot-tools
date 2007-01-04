@@ -1,6 +1,9 @@
 require 'Util'
 
 Checked = []
+# table_check([i,j,k,...])
+#  returns true if Aijk... has been checked
+#  returns false and registers Aijk... as checked otherwise
 def table_check(l)
   res = Checked.map{|x|(x-l)|(l-x)}.index([]) ###
   Checked << l unless res
@@ -8,7 +11,7 @@ def table_check(l)
 end
 
 # fuse_rows([r1, r2, ...])
-#  ri is a rows of E, W, and L
+#  ri is a row containing E, W, and L
 #  returns the fusion of the rows
 # Comps must be [E,W,L]
 def fuse_rows(rows)
@@ -18,21 +21,22 @@ def fuse_rows(rows)
   end.to_a
 end
 
-# Input is the output of RCD
-# Output is [success, mib_sheet, skb_sheet]
+# fred(ct, strata, n=4)
+#  the first row of ct should be the rule names, and the first n columns are ignored
+#  output - [success, mib_sheet, skb_sheet]
+#  success is a boolean that is true iff the data were satisfiable
+#  mib_sheet and skb_sheet are complete with proper labels
 def fred(input, strata, n=4)
   strata = strata.flatten.every+1
   Comps[0..2] = [E,W,L]
   header = input.shift  
   input.every[0...n]=[]
   
-  arg = [[],[],[]]
   success = fred_run(input,[],(lbl=[]),(mib=[]),(skb=[]))
   
   Comps[0..-1] = [W,L,E]
   mib = mib.zip(lbl.map{|row| 'A'+row.map{|num| strata[num]}.join}).sort.map{|row| [row[-1]]+row[0]}
   skb = skb.zip(lbl.map{|row| 'A'+row.map{|num| strata[num]}.join}).sort.map{|row| [row[-1]]+row[0]}
-  
   mib_sheet = [['Fus']+header[4..-1]] + mib
   skb_sheet = [['Fus']+header[4..-1]] + skb
   
@@ -62,7 +66,7 @@ def fred_run(input, layer, lbls, mib, skb)
     hold_fus = false
   elsif !fa.index(W) then
     $fail = input
-    #return false
+    return false
   elsif ftr==fa
     hold_fus = false
   end

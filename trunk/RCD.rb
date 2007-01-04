@@ -1,6 +1,8 @@
 require 'Util.rb'
 
-# From formatted input to output
+# ct_standard(input)
+#  Input - the formatted user input
+#  Output - the ct in standard form
 def ct_standard(input)
   # cut off header - column names
   header = [input.shift]
@@ -38,13 +40,12 @@ def ct_standard(input)
       
       # populate the CT
       for i in 4..cand.size-3
-        #p win_line
         cand[i] = [E,L,W][ win_line[i] <=> cand[i] ]
       end
     end
     res += block
   end
-  header + res.map{ |x| x[0..-3] }
+  header + res.every[0..-3]
 end
 
 # rcd(ct)
@@ -69,7 +70,6 @@ def rcd(table)
     break if stratum.empty?
     
     remain -= stratum
-    # strata << stratum.map{ |x| header[x] }
     strata << stratum
 
     # for each row...
@@ -88,8 +88,9 @@ def rcd(table)
   return [strata,remain]
 end
 
-# takes a table such as in sheet 5 and a strata ordering
-# returns sorted tables, such as in sheet 6
+# sort_by_strata(table, strata)
+#  takes a table such as in sheet 5 and a strata ordering
+#  returns sorted tables, such as in sheet 6
 def sort_by_strata(table, strata)
   ordered_cols = []
   
@@ -97,7 +98,6 @@ def sort_by_strata(table, strata)
   table.each { |row|
     ordered_row = row[0..3]
     ordered_row += strata.flatten.map{ |x| row[x+4] }
-    # p ordered_row
     ordered_cols << ordered_row
   }
 
