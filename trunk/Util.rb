@@ -43,25 +43,23 @@ end
 
 
 class Collector
-  instance_methods.each do
-    |mth|
+  for mth in instance_methods
     undef_method mth.to_sym
   end
-  attr_accessor :objects, :danger
   def initialize(obs)
-    self.objects=obs
-    self.danger=false
+    @objects=obs
+    @danger=false
   end
   def method_missing(*args, &blk)
-    mth = danger ? :map! : :map
-    self.danger=false
-    objects.send(mth) do
+    mth = @danger ? :map! : :map
+    @danger=false
+    @objects.send(mth) do
       |obj|
       obj.send(*args, &blk)
     end
   end
   def r
-    self.danger=true
+    @danger=true
     self
   end
 end

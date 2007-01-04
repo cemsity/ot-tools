@@ -1,12 +1,14 @@
 # driver.rb - this will be the command-line interface for the RCD algorithms
 # Usage: "ruby driver.rb <input file> <output directory>"
 
+Dir.chdir($0[0..$0.rindex('/')])
+
 require 'RCD'
 require 'Util'
 require 'OT_general'
 require 'CSV'
 require 'FRed'
-input_file =  ARGV[0] ? ARGV[0] : 'Input/input.csv'
+input_file =  ARGV[0] ? ARGV[0] : 'Input/input_mac.csv'
 output_folder = ARGV[1] ? ARGV[1] : 'Output'
 
 def rcd_main(input_file,output_folder)
@@ -33,5 +35,6 @@ def rcd_main(input_file,output_folder)
   output(sheet7, "Most Informative Basis", 7)
   output(sheet8, "Skeletal Basis", 8)
 end
+
 
 rcd_main input_file,output_folder
