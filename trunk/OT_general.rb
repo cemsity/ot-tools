@@ -5,7 +5,11 @@ require 'Util'
 #  Output - [table, header, top_comment]
 def get_input(filename)
   # read and parse file
-  table = CSV.read(filename).every.every.every.to_s
+  table = CSV.read(filename)#.every.every.every.to_s
+  table.pop until table[-1][1]
+  table.every.pop until table.every[-1].any?
+  table = table.every.every.every.to_s
+  
   top_comment = [table.shift]
   header = [table.shift]
   

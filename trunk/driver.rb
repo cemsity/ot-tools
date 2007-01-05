@@ -6,7 +6,7 @@ require 'Util'
 require 'OT_general'
 require 'CSV'
 require 'FRed'
-input_file =  ARGV[0] ? ARGV[0] : 'Input/input.csv'
+input_file =  ARGV[0] ? ARGV[0] : 'Input/i2.csv'
 output_folder = ARGV[1] ? ARGV[1] : 'Output'
 
 def rcd_main(input_file,output_folder)
@@ -23,7 +23,7 @@ def rcd_main(input_file,output_folder)
   output(sheet4, "CT no E", 5)
 
   strata,remain = *rcd(sheet4.every[4..-1])
-  puts '-'*10+"Strata"+'-'*10  
+  puts '-'*10+"Strata"+'-'*10
   p strata
 
   sheet6 = sort_by_strata(sheet4,strata)
