@@ -35,8 +35,12 @@ def fred(input, strata, n=4)
   success = fred_run(input,[],(lbl=[]),(mib=[]),(skb=[]))
   
   Comps[0..-1] = [W,L,E]
-  mib = mib.zip(lbl.map{|row| 'A'+row.map{|num| strata[num]}.join}).sort.map{|row| [row[-1]]+row[0]}
-  skb = skb.zip(lbl.map{|row| 'A'+row.map{|num| strata[num]}.join}).sort.map{|row| [row[-1]]+row[0]}
+  form = proc do
+    |tbl|
+    tbl.zip(lbl.map{|row| 'A'+row.map{|num| strata[num]}.join}).sort.map{|row| [row[-1]]+row[0]}
+  end
+  mib = form[mib]
+  skb = form[skb]
   mib_sheet = [['Fus']+header[4..-1]] + mib
   skb_sheet = [['Fus']+header[4..-1]] + skb
   

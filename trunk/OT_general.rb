@@ -8,7 +8,7 @@ def get_input(filename)
   table = CSV.read(filename)#.every.every.every.to_s
   table.pop until table[-1][1]
   table.every.pop until table.every[-1].any?
-  table = table.every.every.every.to_s
+  table = table.every(2).r.to_s
   
   top_comment = [table.shift]
   header = [table.shift]

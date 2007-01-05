@@ -48,17 +48,21 @@ class Collector
   for mth in instance_methods
     undef_method mth
   end
-  def initialize(obs)
-    @objects=obs
+  def initialize(obs, mat)
+    @flat = !mat
+    @objects = mat ? obs : [obs]
     @danger=false
   end
   def method_missing(*args, &blk)
     mth = @danger ? :map! : :map
     @danger=false
-    @objects.send(mth) do
-      |obj|
-      obj.send(*args, &blk)
-    end
+    @objects.map do
+      |row|
+        row.send(mth) do
+        |obj|
+        obj.send(*args, &blk)
+      end
+    end[@flat ? 0 : (0..-1)]
   end
   def r
     @danger=true
@@ -69,7 +73,7 @@ end
 module Enumerable
   # anEnum.every
   #  If you can use this properly, you get a cookie
-  def every
-    Collector.new(self)
+  def every(n=0)
+    Collector.new(self, n>1)
   end
 end
