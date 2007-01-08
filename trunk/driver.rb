@@ -26,7 +26,7 @@ def rcd_main(input_file,output_folder)
   puts '-'*10+"Strata"+'-'*10
   p strata
 
-  sheet6 = sort_by_strata(sheet4,strata)
+  sheet6 = sort_by_strata(sheet4,strata+[remain])
   output(sheet6, "RCD View", 6)
 
   success, sheet7, sheet8 = fred(sheet6, strata)

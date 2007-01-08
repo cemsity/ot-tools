@@ -92,25 +92,15 @@ end
 #  takes a table such as in sheet 5 and a strata ordering
 #  returns sorted tables, such as in sheet 6
 def sort_by_strata(table, strata)
-  ordered_cols = []
+  strata=strata.flatten
+  top = [table.shift]
+  lft = table.every[0..3]
+  table.every[0..3]=[]
   
-  # order the columns by strata and put in ordered_cols
-  table.each { |row|
-    ordered_row = row[0..3]
-    ordered_row += strata.flatten.map{ |x| row[x+4] }
-    ordered_cols << ordered_row
-  }
-
-  header = ordered_cols.shift
-  ordered_rows = []
+  Comps[0..-1] = [W,E,L]
+  table.every.r.values_at(*strata)
+  table.sort!
   
-  (0...strata.flatten.size).each do |col|
-    ordered_cols.clone.each do |row|
-      if row[col+4] == W
-        ordered_rows << ordered_cols.delete(row)
-      end
-    end
-  end
-  
-  return [header]+ordered_rows
+  top + lft.zip(table).map{|ar| ar[0] + ar[1]}
 end
+  

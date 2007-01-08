@@ -70,7 +70,7 @@ def fred_run(input, layer, lbls, mib, skb)
     hold_fus = false
   elsif !fa.index(W) then
     $fail = input
-    return false
+#    return false
   elsif ftr==fa
     hold_fus = false
   end
@@ -86,5 +86,5 @@ def fred_run(input, layer, lbls, mib, skb)
     next if table_check(l2)
     return false unless fred_run(res[k], l2, lbls, mib, skb)
   end
-  true
+  !$fail
 end
