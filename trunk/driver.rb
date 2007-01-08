@@ -6,7 +6,7 @@ require 'Util'
 require 'OT_general'
 require 'CSV'
 require 'FRed'
-input_file =  ARGV[0] ? ARGV[0] : 'Input/i2.csv'
+input_file =  ARGV[0] ? ARGV[0] : 'Input/input.csv'
 output_folder = ARGV[1] ? ARGV[1] : 'Output'
 
 def rcd_main(input_file,output_folder)
@@ -16,7 +16,8 @@ def rcd_main(input_file,output_folder)
 
   output((sheet3=header_formatted + vt_table_formatted), "Input-Formatted", 3)
 
-  output((sheet4=ct_standard(sheet3)), "CT", 4)
+  sheet4, block_sizes = ct_standard(sheet3.copy_mat)
+  output(sheet4, "CT", 4)
 
   E[0...1] = ''
 
@@ -32,6 +33,8 @@ def rcd_main(input_file,output_folder)
   success, sheet7, sheet8 = fred(sheet6, strata)
   output(sheet7, "Most Informative Basis", 7)
   output(sheet8, "Skeletal Basis", 8)
+  output(filtration(sheet3, block_sizes, strata+[remain]), "Filtration-View", 9)
+  output_data(strata, remain)
 end
 
 

@@ -6,8 +6,14 @@ Comps = [W,E,L]
 
 [E,W,L].each do
   |s|
+  def s.is_c
+    true
+  end
   def s.<=>(x)
     Comps.index(self) <=> Comps.index(x)
+  end
+  def s.clone
+    self
   end
 end
 
@@ -44,6 +50,13 @@ def output(table, capt, num=nil)
   end
 end
 
+def output_data(strata, remain)
+  res=[['Strata']] + strata + [['Unrankable']] + (remain[0] ? [remain] : [[-1]])
+  CSV.open('Output/Data.csv', 'w') do |writer|
+    res.each{|row| writer << row}
+  end
+end
+
 class Collector
   for mth in instance_methods
     undef_method mth
@@ -75,5 +88,15 @@ module Enumerable
   #  If you can use this properly, you get a cookie
   def every(n=0)
     Collector.new(self, n>1)
+  end
+end
+
+class Object
+  alias copy_mat clone
+end
+
+class Array
+  def copy_mat
+    map{|r| r.copy_mat}
   end
 end
