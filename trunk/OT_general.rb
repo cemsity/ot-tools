@@ -10,26 +10,25 @@ def get_input(filename)
   table.every.pop until table.every[-1].any?
   table = table.every(2).r.to_s
   
-  top_comment = [table.shift]
-  header = [table.shift]
-  
-  [table, header, top_comment]
+  Top_comm[0..1] = table.shift
+  table
 end
 
 # format_input(table, header)
 #  Input - table, header
 #  Output - [table, header]
 #  Deletes blank lines and add candidate numbers
-def format_input(table, header)
+def format_input(table)
+  header = table.shift
   formatted_table = []
   
   # add numbers to constraints in header
-  for i in (1..(header[0].length-5)) do
-    header[0][i+2] = "#{i}:#{header[0][i+2]}"
+  for i in (1..(header.length-5)) do
+    header[i+2] = "#{i}:#{header[i+2]}"
   end
 
   # add column for candidate numbers in header
-  header[0].unshift('Cand#')
+  header.unshift('Cand#')
     
   # number the candidates by word and candidates
   word_number = '1'
@@ -47,5 +46,5 @@ def format_input(table, header)
     word_number.succ!
   end
 
-  [formatted_table, header]
+  formatted_table.unshift(header)
 end

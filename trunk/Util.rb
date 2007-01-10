@@ -46,14 +46,22 @@ def output(table, capt, num=nil)
   return unless num
   sheet = num.instance_of?(String) ? num : "/Sheet#{num}"
   CSV.open(Out_fold+sheet+".csv", 'w') do |writer|
-    (Top_comm+table).each{|row| writer << row}
+    writer << Top_comm
+    table.each{|row| writer << row}
   end
 end
 
 def output_data(strata, remain)
-  res=[['Strata']] + strata + [['Unrankable']] + (remain[0] ? [remain] : [[-1]])
+  #res=[['Strata']] + strata + [['Unrankable']] + 
   CSV.open('Output/Data.csv', 'w') do |writer|
-    res.each{|row| writer << row}
+    #res.each{|row| writer << row}
+    writer<< ['Strata']
+    strata.each{|row| writer<<row}
+    writer<< ['\Strata']
+    
+    writer<< ['Unrankable']
+    writer<< remain
+    writer<< ['\Unrankable']
   end
 end
 
