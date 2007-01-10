@@ -6,7 +6,7 @@ require 'Util'
 require 'OT_general'
 require 'CSV'
 require 'FRed'
-input_file =  ARGV[0] ? ARGV[0] : 'Input/i2.csv'
+input_file =  ARGV[0] ? ARGV[0] : 'Input/input.csv'
 output_folder = ARGV[1] ? ARGV[1] : 'Output'
 
 def rcd_main(input_file,output_folder)

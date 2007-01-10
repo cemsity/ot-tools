@@ -66,9 +66,12 @@ def output_data(strata, remain)
 end
 
 class Collector
+  ver = $VERBOSE
+  $VERBOSE = nil
   for mth in instance_methods
     undef_method mth
   end
+  $VERBOSE = ver
   def initialize(obs, mat)
     @flat = !mat
     @objects = mat ? obs : [obs]
