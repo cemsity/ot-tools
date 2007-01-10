@@ -5,7 +5,7 @@ Checked = []
 #  returns true if Aijk... has been checked
 #  returns false and registers Aijk... as checked otherwise
 def table_check(l)
-  res = Checked.map{|x|(x-l)|(l-x)}.index([]) ###
+  res = Checked.map{|x|(x-l)|(l-x)}.index([])
   Checked << l unless res
   res
 end

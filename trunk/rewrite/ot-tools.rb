@@ -13,24 +13,17 @@ def validate
   print "Counting constraints, lines... "
   
   col = 3
-  blanklines = 0
-  
   while @inputSheet.Cells(2,col).Value != 'Remarks'
     col += 1
-    break if @inputSheet.Range(@inputSheet.Cells(2, col), @inputSheet.Cells(2, col+10)).Text == ""
+    break if @inputSheet.Range(@inputSheet.Cells(2, col), @inputSheet.Cells(2, col+10)).Text == "" ###
   end
 
-  numConstraints = col - 5
-  
   row = 3
-  
   while @inputSheet.Range(@inputSheet.Cells(row, 2), @inputSheet.Cells(row+10, 2)).Text != ""
     row += 1
   end
   
-  numLines = row - 3
-  
-  return [numConstraints, numLines]
+  [col-5, row-3]
 end
 
 # runs RCD algorithm
