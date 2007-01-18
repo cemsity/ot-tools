@@ -1,4 +1,4 @@
-require 'Util'
+require 'util'
 
 # format_input(table)
 #  Input - table
@@ -10,7 +10,7 @@ def format_input(table)
   header = table.shift
   
   # add numbers to constraints in header
-  for i in (1..(header.length-5)) do
+  for i in (1..(header.size-5)) do
     header[i+2] = "#{i}:#{header[i+2]}"
   end
 
@@ -33,8 +33,5 @@ def format_input(table)
     word_number.succ!
   end
 
-  formatted_table.unshift(header)
-  formatted_table.unshift(comment)
-  
-  return formatted_table
+  [comment, header, *formatted_table]
 end

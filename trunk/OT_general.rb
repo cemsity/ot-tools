@@ -5,10 +5,18 @@ require 'Util'
 #  Output - [table, header, top_comment]
 def get_input(filename)
   # read and parse file
+<<<<<<< .mine
+  table = File.read(filename).gsub("\n","\r").split("\r").map do |x|
+    # get rid of commas in the last clause
+    x.gsub!( /,\"(.*)\"$/ ) { ',' + $1.gsub(/,/, "<comma />") }
+    x.split(',',-1).each{ |x| x.strip! }
+  end
+=======
   table = CSV.read(filename)#.every.every.every.to_s
   table.pop until table[-1][1]
   table.every.pop until table.every[-1].any?
   table = table.every(2).r.to_s
+>>>>>>> .r62
   
   Top_comm[0..1] = table.shift
   table

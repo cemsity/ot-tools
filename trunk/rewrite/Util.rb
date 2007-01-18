@@ -9,6 +9,9 @@ Comps = [W,E,L]
   def s.<=>(x)
     Comps.index(self) <=> Comps.index(x)
   end
+  def s.clone
+    self
+  end
 end
 
 # print_mat(matrix[,delim])
@@ -28,37 +31,26 @@ def split_cand(cand)
   [cand[0...n],cand[n+1..-1]]
 end
 
-
-Out_fold = ""
-Top_comm = []
-# output(table, capt, [num])
-#  writes table to the screen, labeled with capt
-#  writes out table (as a spreadsheet) to "Sheet#{num}.csv" if num is provided
-def output(table, capt, num=nil)
-  puts '-'*10 + (num ? "Sheet #{num}: " : '') + capt + '-'*10
-  print_mat table, "\t"
-  return unless num
-  sheet = num.instance_of?(String) ? num : "/Sheet#{num}"
-  CSV.open(Out_fold+sheet+".csv", 'w') do |writer|
-    (Top_comm+table).each{|row| writer << row}
-  end
+def ltr(n)
+  return '' if (n=n.to_i)==0
+  ltr(n/26) + (''<<(96+(n%26)))
 end
 
-class Array
-  def inject(n)
-     each { |value| n = yield(n, value) }
-     n
-  end
-  
-  def sum
-    inject( nil ) { |sum,x| sum ? sum+x : x }
-  end
+def range(r1,c1,r2,c2)
+  @excel.activeSheet.Range("#{ltr(c1)}#{r1}:#{ltr(c2)}#{r2}")
+end
+
+def cell(r,c)
+  @excel.activeSheet.cells(r,c)
 end
 
 class Collector
+  ver = $VERBOSE
+  $VERBOSE = nil
   for mth in instance_methods
     undef_method mth
   end
+  $VERBOSE = ver
   def initialize(obs, mat)
     @flat = !mat
     @objects = mat ? obs : [obs]
@@ -86,5 +78,25 @@ module Enumerable
   #  If you can use this properly, you get a cookie
   def every(n=0)
     Collector.new(self, n>1)
+  end
+end
+
+class Object
+  def copy_mat
+    begin
+      clone
+    end rescue self
+  end
+end
+
+class Array
+  include Comparable
+  def copy_mat
+    map{|r| r.copy_mat}
+  end
+  def sum
+    empty = 0 if first.is_a?(Numeric)
+    empty = [] if first.is_a?(Array)
+    inject(empty){|x,y| x+y}
   end
 end

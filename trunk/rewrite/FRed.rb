@@ -1,11 +1,11 @@
-require 'Util'
+require 'util'
 
 Checked = []
 # table_check([i,j,k,...])
 #  returns true if Aijk... has been checked
 #  returns false and registers Aijk... as checked otherwise
 def table_check(l)
-  res = Checked.map{|x|(x-l)|(l-x)}.index([]) ###
+  res = (Checked.include?(l))
   Checked << l unless res
   res
 end
@@ -27,27 +27,25 @@ end
 #  success is a boolean that is true iff the data were satisfiable
 #  mib_sheet and skb_sheet are complete with proper labels
 def do_fred(input, strata, n=4)
+  top = [input.shift,['Fus']+(rules=input.shift[4..-1])]
+  left = input.every[0..0]
   strata = strata.flatten.every+1
   Comps[0..2] = [E,W,L]
-  header = input.shift  
   input.every[0...n]=[]
   
-  success = fred_run(input,[],(lbl=[]),(mib=[]),(skb=[]))
+  success = fred_run(input,[],(lbl=[]),(mib=[]),(skb=[]),(ver=[top[0]]), left, rules, strata)
+  lbl.map!{|row| 'A'+row.map{|num| strata[num]}.join}
+  ver[1] << 'STATUS'
   
   Comps[0..-1] = [W,L,E]
   form = proc do
     |tbl|
-    tbl.zip(lbl.map{|row| 'A'+row.map{|num| strata[num]}.join}).sort.map{|row| [row[-1]]+row[0]}
+    top + tbl.zip(lbl).sort.map{|row| [row[-1]]+row[0]}
   end
-  mib = form[mib]
-  skb = form[skb]
-  mib_sheet = [['Fus']+header[4..-1]] + mib
-  skb_sheet = [['Fus']+header[4..-1]] + skb
-  
-  [success, mib_sheet, skb_sheet]
+  [success, form[mib], form[skb], ver]
 end
 
-def fred_run(input, layer, lbls, mib, skb)
+def fred_run(input, layer, lbls, mib, skb, ver, left, rules, strata)
   n=input.size
   #0. Base step
   return true if input==[]
@@ -58,22 +56,40 @@ def fred_run(input, layer, lbls, mib, skb)
   
   #2. Identify lost information
   ilc = (0..n).select{|i| fa[i]==W}
-  res = {}
+  res = {}; lft={}
   ilc.each do |i|
-    res[i] = input.select{|r| r[i]==E}
+    new_res = []
+    new_lft = []
+    input.each_index do
+      |j|
+      next if input[j][i] != E
+      new_res << input[j]
+      new_lft << left[j]
+    end
+    next if res.values.map{|res_o| new_res - res_o}.include?([])
+    res[i] = new_res
+    lft[i] = new_lft
+    #res[i] = input.select{|r| r[i]==E}
   end
   ilc.reject!{|x| res[x]==[]}
   ftr = fuse_rows(ilc.inject([]){|ar1,i| ar1 + res[i]})
   
   #3. Check entailment
-  if !fa.index(L) then
+  fail = false
+  if !fa.include?(L) then
     hold_fus = false
-  elsif !fa.index(W) then
-    $fail = input
-#    return false
+  elsif !fa.include?(W) then
+    fail = true
   elsif ftr==fa
     hold_fus = false
   end
+  
+  #3.5 Verbose
+  ver << [s="A#{strata.values_at(*layer)}"]+rules
+  ver.insert(-1, *(left.zip(input).every.sum))
+  ver << (['f'+s]+fa)
+  ver[-1] << (hold_fus ? 'KEEP' : 'ENT')
+  ver.insert(-1,[''],[''])
   
   #4. Recurse
   if hold_fus then
@@ -83,8 +99,8 @@ def fred_run(input, layer, lbls, mib, skb)
   end
   for k in ilc do
     l2 = layer|[k]
-    next if table_check(l2)
-    return false unless fred_run(res[k], l2, lbls, mib, skb)
+    next if table_check(l2.sort)
+    return false unless fred_run(res[k], l2, lbls, mib, skb, ver, lft[k], rules, strata)
   end
-  !$fail
+  !fail
 end

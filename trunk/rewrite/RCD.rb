@@ -1,29 +1,33 @@
-require 'Util.rb'
+require 'util'
 
 # ct_standard(input)
 #  Input - the formatted user input
 #  Output - the ct in standard form
 def ct_standard(input)
   # cut off comments, header
-  comments = [input.shift[0..-3]]
-  header = [input.shift]
+  comments = input.shift[0..-3]
+  header = input.shift
 
   # Label the headers appropriately, chop off remarks
-  header.first[0..3] = ['ERC#','Input','Winner','Loser']
-  header.first[-2..-1] = []
+  header[0..3] = ['ERC#','Input','Winner','Loser']
+  header[-2..-1] = []
   
   res = []
+  sizes = []
   until input.empty? do
     block = []
 
     # populate column 2 correctly
+    i=0
     begin
       block << input.shift
       block[-1][1] = block[0][1]
-    end until input.first[1] != nil rescue nil
+      i += 1
+    end until input.first[1] rescue nil
+    sizes << i  
     
     # save winning line as win_line, and delete it from block
-    block.delete( win_line = block.select{ |x| x[3] != nil }.first )
+    block.delete( win_line = block.select{ |x| x[3] }.first )
 
     # change Cand# to ERC
     block.each do |cand|
@@ -47,7 +51,7 @@ def ct_standard(input)
     res += block
   end
 
-  comments + header + res.every[0..-3]
+  [[comments, header, *(res.every[0..-3])], sizes]
 end
 
 # rcd(ct)
@@ -79,7 +83,7 @@ def do_rcd(table)
     table.each_index do |i|
       # ...with the stratum cols selected
       w_e = table[i].values_at(*stratum)
-      if w_e.index(W)
+      if w_e.include?(W)
         table[i] = nil
       else
         stratum.each{ |j| table[i][j] = L }
@@ -88,7 +92,7 @@ def do_rcd(table)
     table.compact!
   end
 
-  return [strata,remain]
+  return [strata<<remain,remain.empty?]
 end
 
 # sort_by_strata(table, strata)
@@ -116,5 +120,37 @@ def sort_by_strata(table, strata)
     end
   end
   
-  return [comments,header]+ordered_rows
+  [comments, header] + ordered_rows + ordered_cols
+end
+
+# filtration(input, blocks, strata)
+#  input - the Input-Formatted sheet
+#  blocks - the number of candidates for each choice
+#  strata - the ordering of the columns
+#  returns the Filtration-View sheet
+def filtration(input, blocks, strata)
+  strata=strata.flatten
+  cols = (0...input[0].size).to_a
+  cols[4..-3] = strata.every+4
+  input.every.r.values_at(*cols)
+  res = [input.shift, input.shift]
+  blocks.each do
+    |size|
+    cands = (1...size).to_a
+    block = ([0]*size).map{|x| input.shift.every.to_s}
+    in_word = block[0][1]
+    block[0][1] = ''
+    block.sort!{|a,b| a[4..-1] <=> b[4..-1]}
+    block[0][1] = in_word
+    col = 4
+    while cands[0]
+      cands.select{|c| block[c][col] != block[0][col]}.each do
+        |del|
+        block[cands.delete(del)][col] += ' !'
+      end
+      col += 1
+    end
+    res += block
+  end
+  res
 end

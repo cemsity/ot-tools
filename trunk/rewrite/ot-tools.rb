@@ -1,66 +1,64 @@
-require 'RCD'
-require 'FRed'
+require 'rcd'
+require 'fred'
 require 'ot'
 require 'excel'
+Interactive = false
 
 puts "\nOT-tools version 1.0"
 puts "-"*20
 
-@excel = setup
-@workbook = @excel.Workbooks(1)
-@inputSheet = @workbook.Worksheets(1)
-
 # Validates @inputSheet, returns [numConstraints, numLines] in said worksheet
 def validate
-  print "Counting constraints, lines... "
   
   col = 3
-  while @inputSheet.Cells(2,col).Value != 'Remarks'
+  while cell(2,col).Value != 'Remarks'
     col += 1
-    break if @inputSheet.Range(@inputSheet.Cells(2, col), @inputSheet.Cells(2, col+10)).Text == "" ###
+    break if range(2, col,2, col+10).Text == ""
   end
 
   row = 3
-  while @inputSheet.Range(@inputSheet.Cells(row, 2), @inputSheet.Cells(row+10, 2)).Text != ""
+  while range(row, 2, row+10, 2).Text != ""
     row += 1
   end
-  
   [col-5, row-3]
 end
 
 # runs RCD algorithm
 def rcd
+  E[0..-1]='E'
   # Sheet 2 #
     # Validate input
     numConstraints, numLines = validate
     return nil if not numConstraints or not numLines
+    input = range(1,1,numLines+2, numConstraints+5).Value
     
     # add sheet
     @formattedSheet = @workbook.Worksheets.Add nil, @inputSheet
     @formattedSheet.Name = "Input Formatted"
     
     # format input
-    formatted_input = format_input(@inputSheet.Range(@inputSheet.Cells(1,1), @inputSheet.Cells(numLines+2, numConstraints+5)).Value)
+    formatted_input = format_input(input)
     
-    height = formatted_input.length
-    width = formatted_input.every.length.max
+    height = formatted_input.size
+    width = formatted_input[1].size
     
     # output data
-    @formattedSheet.Range(@formattedSheet.Cells(1,1), @formattedSheet.Cells(height, width)).Value = formatted_input
+    range(1,1,height, width).Value = formatted_input
     
     # format sheet
-    @formattedSheet.Range(@formattedSheet.Cells(2,1), @formattedSheet.Cells(height, width-2)).Borders.Weight = 2            # thin-line grid
-    @formattedSheet.Range(@formattedSheet.Cells(2,4), @formattedSheet.Cells(height, width-2)).HorizontalAlignment = -4108   # center text
-    @formattedSheet.Range(@formattedSheet.Cells(1,1), @formattedSheet.Cells(1, width-2)).Borders(9).Weight = 3              # top hard line
-    @formattedSheet.Range(@formattedSheet.Cells(2,1), @formattedSheet.Cells(2, width-2)).Borders(9).LineStyle = -4119       # top double line
-    @formattedSheet.Range(@formattedSheet.Cells(2,4), @formattedSheet.Cells(height, 4)).Borders(10).LineStyle = -4119       # vertical double line
+    range(2,1,height, width-2).Borders.Weight = 2            # thin-line grid
+    range(2,4,height, width-2).HorizontalAlignment = -4108   # center text
+    range(1,1,1, width-2).Borders(9).Weight = 3              # top hard line
+    range(2,1,2, width-2).Borders(9).LineStyle = -4119       # top double line
+    range(2,4,height, 4).Borders(10).LineStyle = -4119       # vertical double line
     @formattedSheet.Columns("D:D").EntireColumn.AutoFit
     @formattedSheet.Columns(width).EntireColumn.AutoFit
     
     # strong horizontal lines
-    for row in (3..height) do
-      @formattedSheet.Cells(row,1).Text + @formattedSheet.Cells(row+1,1).Text =~ /(^[0-9]+)[a-z]+([0-9]+)/
-      @formattedSheet.Range(@formattedSheet.Cells(row,1), @formattedSheet.Cells(row, width-2)).Borders(9).Weight = 3 if $1 != $2
+    @ct_data, block_sizes = ct_standard(formatted_input.copy_mat)
+    row=2
+    for add in block_sizes do
+      range((row+=add),1,row, width-2).Borders(9).Weight = 3
     end
 
   # Sheet 3 #
@@ -69,50 +67,38 @@ def rcd
     @ctSheet.Name = "CT Standard"
     
     # calculate data
-    ct_data = ct_standard(formatted_input)
-    height = ct_data.length
-    width = ct_data.first.length
+    height = @ct_data.size
+    width = @ct_data[1].size
     
-    # output data
-    @ctSheet.Range(@ctSheet.Cells(1,1), @ctSheet.Cells(height, width)).Value = ct_data
-    
-    #format sheet
-    @ctSheet.Range(@ctSheet.Cells(2,1), @ctSheet.Cells(height, width)).Borders.Weight = 2             # thin-line grid
-    @ctSheet.Range(@ctSheet.Cells(2,5), @ctSheet.Cells(height, width)).HorizontalAlignment = -4108    # center text
-    @ctSheet.Range(@ctSheet.Cells(1,1), @ctSheet.Cells(1, width)).Borders(9).Weight = 3               # top hard line
-    @ctSheet.Range(@ctSheet.Cells(2,1), @ctSheet.Cells(2, width)).Borders(9).LineStyle = -4119        # top double line
-    @ctSheet.Range(@ctSheet.Cells(2,4), @ctSheet.Cells(height, 4)).Borders(10).LineStyle = -4119      # vertical double line
-    
-    # strong horizontal lines
-    for row in (3..height) do
-      @ctSheet.Cells(row,1).Text + @ctSheet.Cells(row+1,1).Text =~ /(^[0-9]+)[a-z]+([0-9]+)/        
-      @ctSheet.Range(@ctSheet.Cells(row,1), @ctSheet.Cells(row, width)).Borders(9).Weight = 3 if $1 != $2
+    format_ct = proc do
+      # output data
+      range(1,1,height, width).Value = @ct_data
+      
+      #format sheet
+      range(2,1,height, width).Borders.Weight = 2             # thin-line grid
+      range(2,5,height, width).HorizontalAlignment = -4108    # center text
+      range(1,1,1, width).Borders(9).Weight = 3               # top hard line
+      range(2,1, 2, width).Borders(9).LineStyle = -4119        # top double line
+      range(2,4,height, 4).Borders(10).LineStyle = -4119      # vertical double line
+      
+      # strong horizontal lines
+      row = 2
+      for add in block_sizes[0..-2] do
+        range((row+=add-1),1,row, width).Borders(9).Weight = 3
+      end
+      
+      range(1,1, height,width).each { |cur_cell| cur_cell.Font.Bold = "True" if [W,L].include?(cur_cell.Text) }
     end
+    format_ct[]
     
-    @ctSheet.Range(@ctSheet.Cells(1,1), @ctSheet.Cells(height,width)).each { |cell| cell.Font.Bold = "True" if ['W','L'].index(cell.Text) }
-  
   # Sheet 4 #
     E[0...1] = ''
     @ctSheet2 = @workbook.Worksheets.Add nil, @ctSheet
     @ctSheet2.Name = "CT no e's"
     
     # output data
-    @ctSheet2.Range(@ctSheet2.Cells(1,1), @ctSheet2.Cells(height, width)).Value = ct_data
-    # format sheet
-    @ctSheet2.Range(@ctSheet2.Cells(2,1), @ctSheet2.Cells(height, width)).Borders.Weight = 2             # thin-line grid
-    @ctSheet2.Range(@ctSheet2.Cells(2,5), @ctSheet2.Cells(height, width)).HorizontalAlignment = -4108    # center text
-    @ctSheet2.Range(@ctSheet2.Cells(1,1), @ctSheet2.Cells(1, width)).Borders(9).Weight = 3               # top hard line
-    @ctSheet2.Range(@ctSheet2.Cells(2,1), @ctSheet2.Cells(2, width)).Borders(9).LineStyle = -4119        # top double line
-    @ctSheet2.Range(@ctSheet2.Cells(2,4), @ctSheet2.Cells(height, 4)).Borders(10).LineStyle = -4119      # vertical double line
-    
-    # strong horizontal lines
-    for row in (3..height) do
-      @ctSheet2.Cells(row,1).Text + @ctSheet2.Cells(row+1,1).Text =~ /(^[0-9]+)[a-z]+([0-9]+)/         
-      @ctSheet2.Range(@ctSheet2.Cells(row,1), @ctSheet2.Cells(row, width)).Borders(9).Weight = 3 if $1 != $2
-    end
-    
-    # highlight W's and L's
-    @ctSheet2.Range(@ctSheet2.Cells(2,5), @ctSheet2.Cells(height,width)).each { |cell| cell.Font.Bold = "True" if ['W','L'].index(cell.Text) }   
+    range(1,1,height, width).Value = @ct_data
+    format_ct[]
 
   # Sheet 5 #
     # make sheets
@@ -120,90 +106,138 @@ def rcd
     @rcdSheet.Name = "RCD View"
     
     # calculate data
-    strata, remain = *do_rcd(ct_data.clone.every[4..-1])
-    strata_len = strata.every.length
+    strata, success = do_rcd(@ct_data.every[4..-1])
+    strata_len = [0]
+    strata.each{|x| strata_len << strata_len[-1]+x.size}
+    #strata_len.shift
+    #strata_len=strata.every.size
     
-    sorted_strata = sort_by_strata(ct_data,strata)
+    sorted_strata = sort_by_strata(@ct_data.copy_mat,strata)
     
-    height = sorted_strata.length
-    width = sorted_strata.first.length
+    height = sorted_strata.size
+    width = sorted_strata[1].size
     
     # output data
-    @rcdSheet.Range(@rcdSheet.Cells(1,1), @rcdSheet.Cells(height, width)).Value = sorted_strata
+    range(1,1, height, width).Value = sorted_strata
     
     # format sheet
-    @rcdSheet.Range(@rcdSheet.Cells(2,1), @rcdSheet.Cells(height, width)).Borders.Weight = 2                   # thin-line grid
-    @rcdSheet.Range(@rcdSheet.Cells(2,5), @rcdSheet.Cells(height, width)).HorizontalAlignment = -4108          # center text
-    @rcdSheet.Range(@rcdSheet.Cells(1,1), @rcdSheet.Cells(1, width)).Borders(9).Weight = 3                     # top hard line
-    @rcdSheet.Range(@rcdSheet.Cells(2,1), @rcdSheet.Cells(2, width)).Borders(9).LineStyle = -4119              # top double line
-    @rcdSheet.Range(@rcdSheet.Cells(2,4), @rcdSheet.Cells(height, 4)).Borders(10).LineStyle = -4119            # vertical double line
+    range(2,1,height, width).Borders.Weight = 2                   # thin-line grid
+    range(2,5,height, width).HorizontalAlignment = -4108          # center text
+    range(1,1,1, width).Borders(9).Weight = 3                     # top hard line
+    range(2,1,2, width).Borders(9).LineStyle = -4119              # top double line
+    range(2,4,height, 4).Borders(10).LineStyle = -4119            # vertical double line
     
     # highlight W's and L's
-    @rcdSheet.Range(@rcdSheet.Cells(2,5), @rcdSheet.Cells(height,width)).each { |cell| cell.Font.Bold = "True" if ['W','L'].index(cell.Text) }  
+    range(2,5,height,width).each { |cur_cell| cur_cell.Font.Bold = "True" if [W,L].include?(cur_cell.Text) }  
     
     # draw strong vertical lines
-    for n in (0...strata_len.length).map{ |m| strata_len[0..m].sum }
-      @rcdSheet.Range(@rcdSheet.Cells(2,n+4), @rcdSheet.Cells(height, n+4)).Borders(10).Weight = 3             # vertical hard lines
+    for n in strata_len
+      range(2,n+4,height, n+4).Borders(10).Weight = 3             # vertical hard lines
     end
     
     # draw strong horizontal lines
-    curStrata = 0
+    curStratum = 0
+    layers = []
     for n in (3..height+1)
-      # print [5+(strata_len[0...curStrata].sum or 0), 4+strata_len[0...(curStrata+1)].sum,n,"\n"].join(", ")    # good luck
-      if @rcdSheet.Range(@rcdSheet.Cells(n,5+(strata_len[0...curStrata].sum or 0)), @rcdSheet.Cells(n, 4+strata_len[0...(curStrata+1)].sum)).Text == ""
-        @rcdSheet.Range(@rcdSheet.Cells(n-1,1), @rcdSheet.Cells(n-1, width)).Borders(9).Weight = 3             # vertical hard lines
-        curStrata += 1
+      # print [5+(strata_len[0...curStratum].sum or 0), 4+strata_len[0...(curStratum+1)].sum,n,"\n"].join(", ")    # good luck
+      if range(n,5+strata_len[curStratum],n, 4+strata_len[curStratum+1]).Text == ""
+        range(n-1,1,n-1, width).Borders(9).Weight = 3             # horizontal hard lines
+        layers << n
+        curStratum += 1
       end
+    end
+    # Check failure
+    unless success then
+      range(1,layers[-2],1,layers[-1]-1).Interior.ColorIndex = 3
+      cell(1,layers[-1]).Value = "FAIL!"
+      cell(1,layers[-1]).Font.Bold = true
+    end
+    
+  # filtration
+    # make sheet
+    @filtrSheet = @workbook.Worksheets.Add nil,@rcdSheet
+    @filtrSheet.Name = "Filtration View"
+    
+    # calculate data
+    filtr_data = filtration(formatted_input.every.r.map{|x|x.instance_of?(Float) ? x.to_i : x}, block_sizes, strata).every(2).r.to_s
+    height = filtr_data.size
+    width = filtr_data[1].size - 2
+    
+    # output data
+    range(1,1,height, width+2).Value=filtr_data
+    
+    # format sheet
+    range(2,1,height, width).Borders.Weight = 2                   # thin-line grid
+    range(2,1,height, 1).borders(10).lineStyle = -4119          # double line after Cand#
+    range(2,4,height, 4).borders(10).lineStyle = -4119          # double line after Opt
+    range(2,1,height, width).horizontalAlignment = -4108       # center data
+    range(1,2,4,2).horizontalAlignment = -4131                                                                 # left-align headings
+    range(3,2,height, 2).horizontalAlignment = -4131             # left-align input
+    range(3,3,height, 3).horizontalAlignment = -4152             # right-align outputs
+    row=3
+    ([0]+block_sizes[0..-2]).each do |blk|
+      cel = cell(3,(row+=blk))
+      cel.font.bold = true
+      cel.horizontalAlignment = -4131
+      range(row,1,row,width).borders(8).lineStyle = -4119
     end
 end
 
 # runs FRED algorithm
 def fred
+  E[0..-1]=''
   # Validate
   numConstraints, numLines = validate
   
-  # compute things
-  formatted_input = format_input(@inputSheet.Range(@inputSheet.Cells(1,1), @inputSheet.Cells(numLines+2, numConstraints+5)).Value)
-  ct_data = ct_standard(formatted_input)
-  strata, remain = *do_rcd(ct_data.clone.every[4..-1])
-  sorted_strata = sort_by_strata(ct_data,strata)
+  strata, success = do_rcd(@ct_data.every[4..-1])
+  sorted_strata = sort_by_strata(@ct_data,strata)
   
-  comments = sorted_strata.shift
-  
-  # compute FRed 
-  success, inform_basis, skeletal_basis = do_fred(sorted_strata, strata)
+  # compute FRed
+  success, inform_basis, skeletal_basis, verbose = do_fred(sorted_strata, strata)
   
   # output informative basis
   @informBasis = @workbook.Worksheets.Add nil, @inputSheet
   @informBasis.Name = "Informative Basis"
-  @informBasis.Range(@informBasis.Cells(1,1), @informBasis.Cells(1, comments.length)).Value = comments
-  @informBasis.Range(@informBasis.Cells(2,1), @informBasis.Cells(inform_basis.length+1, inform_basis.every.length.max)).Value = inform_basis
+  range(1,1,inform_basis.size, inform_basis[1].size).Value = inform_basis
   
   # format sheet
-  @informBasis.Range(@informBasis.Cells(2,1), @informBasis.Cells(inform_basis.length+1, inform_basis.every.length.max)).Borders.Weight = 2      # grid
-  @informBasis.Range(@informBasis.Cells(1,1), @informBasis.Cells(1, inform_basis.every.length.max)).Borders(9).Weight = 3                       # heavy top line
-  @informBasis.Range(@informBasis.Cells(2,1), @informBasis.Cells(2, inform_basis.every.length.max)).Borders(9).LineStyle = -4119                # double top line
-  
-  @informBasis.Range(@informBasis.Cells(3,2), @informBasis.Cells(inform_basis.length+1,inform_basis.every.length.max)).each do |cell|
-    cell.Font.Bold = "True" if ['W','L'].index(cell.Text)
+  range(2,1,inform_basis.size, inform_basis[1].size).Borders.Weight = 2      # grid
+  range(1,1,1, inform_basis[1].size).Borders(9).Weight = 3                       # heavy top line
+  range(2,1,2, inform_basis[1].size).Borders(9).LineStyle = -4119                # double top line
+
+  range(3,2,inform_basis.size+1,inform_basis[1].size).each do |cur_cell|
+    cur_cell.Font.Bold = true if [W,L].include?(cur_cell.Text)
   end
   
   # output skeletal basis
   @skeletBasis = @workbook.Worksheets.Add nil, @informBasis
   @skeletBasis.Name = "Skeletal Basis"
-  @skeletBasis.Range(@skeletBasis.Cells(1,1), @skeletBasis.Cells(1, comments.length)).Value = comments
-  @skeletBasis.Range(@skeletBasis.Cells(2,1), @skeletBasis.Cells(skeletal_basis.length, inform_basis.every.length.max)).Value = skeletal_basis
+  range(1,1,skeletal_basis.size, inform_basis[1].size).Value = skeletal_basis
   
   # format sheet
-  @skeletBasis.Range(@skeletBasis.Cells(2,1), @skeletBasis.Cells(skeletal_basis.length+1, skeletal_basis.every.length.max)).Borders.Weight = 2      # grid
-  @skeletBasis.Range(@skeletBasis.Cells(1,1), @skeletBasis.Cells(1, skeletal_basis.every.length.max)).Borders(9).Weight = 3                       # heavy top line
-  @skeletBasis.Range(@skeletBasis.Cells(2,1), @skeletBasis.Cells(2, skeletal_basis.every.length.max)).Borders(9).LineStyle = -4119                # double top line
+  range(2,1,skeletal_basis.size , skeletal_basis[1].size).Borders.Weight = 2      # grid
+  range(1,1,1, skeletal_basis[1].size).Borders(9).Weight = 3                       # heavy top line
+  range(2,1,2, skeletal_basis[1].size).Borders(9).LineStyle = -4119                # double top line
   
-  @skeletBasis.Range(@skeletBasis.Cells(3,2), @skeletBasis.Cells(inform_basis.length+1,inform_basis.every.length.max)).each do |cell|
-    cell.Font.Bold = "True" if ['W','L'].index(cell.Text)
+  range(3,2,inform_basis.size+1,inform_basis[1].size).each do |cur_cell|
+    cur_cell.Font.Bold = "True" if [W,L].include?(cur_cell.Text)
   end
-
-p skeletal_basis.length, inform_basis.length
+  
+  # Verbose
+  height = verbose.size
+  width = verbose[1].size-1
+  @verboseSheet = @workbook.Worksheets.Add nil,@skeletBasis
+  @verboseSheet.Name = 'FRed Verbose'
+  range(1,1,verbose.size,verbose[1].size).value=verbose
+  for row in 2...height
+    next unless test = verbose[row-1][0][0]
+    range(row,1,row,width).borders.weight = 2
+    cell(row,1).font.bold = true if test == 65
+    range(row,2,row,width+1).Font.Bold = true if test == 102
+    test2 = verbose[row-1][-1][0]
+    cell(row,width+1).interior.colorIndex = 4 if test2==75
+    range(row,2,row,width+1).interior.colorIndex = 15 if test2 == 69
+  end
 end
 
 # clears all worksheets but input
@@ -211,24 +245,29 @@ def clear(sheets=nil)
   @excel.DisplayAlerts = "False"
   if sheets
     @workbook.worksheets.each do |worksheet|
-      worksheet.delete if sheets.index(worksheet.Name)
+      worksheet.delete if sheets.include?(worksheet.Name)
     end
   else
+    del=false
     @workbook.worksheets.each do |worksheet|
-      worksheet.delete if worksheet.Name != "OT Input"
+      worksheet.delete if del
+      del = true
     end
   end
   @excel.DisplayAlerts = "True"
 end
 
-begin
-  print "> "
-  command = gets
-  begin
-    output = eval(command)
-    print '=> '
-    p output
-  rescue
-    puts $!
+def main
+  setup
+  if !Interactive then
+    rcd
+    fred
+    return
   end
-end until command == "exit"
+  puts  "Enter the data in Excel, then hit enter."
+  gets
+  rcd
+  fred
+end
+
+main
