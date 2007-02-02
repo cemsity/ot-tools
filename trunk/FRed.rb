@@ -13,7 +13,7 @@ end
 # fuse_rows([r1, r2, ...])
 #  ri is a row containing E, W, and L
 #  returns the fusion of the rows
-# Comps must be [E,W,L]
+# Comps must be [E,W,L] 
 def fuse_rows(rows)
   rows.inject(rows[0]) do
    |r1, r2|
