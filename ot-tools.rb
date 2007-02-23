@@ -32,14 +32,16 @@ def rcd
   input = range(1,1,numLines+2, numConstraints+5).Value
     
   sheet_format_input(input)
+  sheet_ct_standard
+  sheet_rcd_view
 end
 
 def sheet_format_input(input)
   # Sheet 2 #  
     # format input
-    formatted_input = format_input(input)
-    height = formatted_input.size
-    width = formatted_input[1].size
+    @formatted_input = format_input(input)
+    height = @formatted_input.size
+    width = @formatted_input[1].size
     
     # add sheet
     @formattedSheet = @workbook.Worksheets.Add nil, @inputSheet
@@ -47,7 +49,7 @@ def sheet_format_input(input)
     
     
     # output data
-    range(1,1,height, width).Value = formatted_input
+    range(1,1,height, width).Value = @formatted_input
     
     # format sheet
     range(2,1,height, width-2).Borders.Weight = 2            # thin-line grid
@@ -59,7 +61,7 @@ def sheet_format_input(input)
     @formattedSheet.Columns(width).EntireColumn.AutoFit
     
     # strong horizontal lines
-    @ct_data, @@block_sizes = ct_standard(formatted_input.copy_mat)
+    @ct_data, @@block_sizes = ct_standard(@formatted_input.copy_mat)
     row=2
     for add in @@block_sizes do
       range((row+=add),1,row, width-2).Borders(9).Weight = 3
@@ -158,14 +160,16 @@ def sheet_rcd_view
       cell(layers[-1],1).Value = "FAIL!"
       cell(layers[-1],1).Font.Bold = true
     end
-    
+end
+
+def sheet_filtration
     # filtration
     # make sheet
     @filtrSheet = @workbook.Worksheets.Add nil, @rcdSheet
     @filtrSheet.Name = "Filtration View"
     
     # calculate data
-    filtr_data = filtration(formatted_input.every.r.map{|x|x.instance_of?(Float) ? x.to_i : x}, @block_sizes, @strata.flatten).every(2).r.to_s
+    filtr_data = filtration(@formatted_input.every.r.map{|x|x.instance_of?(Float) ? x.to_i : x}, @block_sizes, @strata.flatten).every(2).r.to_s
     height = filtr_data.size
     width = filtr_data[1].size - 2
     
