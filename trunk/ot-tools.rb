@@ -8,7 +8,6 @@ Interactive = false
 
 # Validates @inputSheet, returns [numConstraints, numLines] in said worksheet
 def validate
-  
   col = 3
   while cell(2,col).Value != 'Remarks'
     col += 1
@@ -106,19 +105,19 @@ def rcd
     @rcdSheet.Name = "RCD View"
     
     # calculate data
-    strata, success = do_rcd(@ct_data.every[4..-1])
+    @strata, success = do_rcd(@ct_data.every[4..-1])
     strata_len = [0]
-    strata.each{|x| strata_len << strata_len[-1]+x.size}
+    @strata.each{|x| strata_len << strata_len[-1]+x.size}
     #strata_len.shift
     #strata_len=strata.every.size
     
-    sorted_strata = sort_by_strata(@ct_data.copy_mat,strata)
+    @sorted_strata = sort_by_strata(@ct_data.copy_mat,@strata)
     
-    height = sorted_strata.size
-    width = sorted_strata[1].size
+    height = @sorted_strata.size
+    width = @sorted_strata[1].size
     
     # output data
-    range(1,1, height, width).Value = sorted_strata
+    range(1,1, height, width).Value = @sorted_strata
     
     # format sheet
     range(2,1,height, width).Borders.Weight = 2                   # thin-line grid
@@ -148,7 +147,7 @@ def rcd
     end
     # Check failure
     unless success then
-      range(1,layers[-1]-1,1,layers[-2]).Interior.ColorIndex = 3
+      range(layers[-1]-1,1,layers[-2],1).Interior.ColorIndex = 3
       cell(layers[-1],1).Value = "FAIL!"
       cell(layers[-1],1).Font.Bold = true
     end
@@ -159,7 +158,7 @@ def rcd
     @filtrSheet.Name = "Filtration View"
     
     # calculate data
-    filtr_data = filtration(formatted_input.every.r.map{|x|x.instance_of?(Float) ? x.to_i : x}, block_sizes, strata.flatten).every(2).r.to_s
+    filtr_data = filtration(formatted_input.every.r.map{|x|x.instance_of?(Float) ? x.to_i : x}, block_sizes, @strata.flatten).every(2).r.to_s
     height = filtr_data.size
     width = filtr_data[1].size - 2
     
@@ -191,10 +190,10 @@ def fred
   numConstraints, numLines = validate
   
   strata, success = do_rcd(@ct_data.every[4..-1])
-  sorted_strata = sort_by_strata(@ct_data,strata)
+  @sorted_strata = sort_by_strata(@ct_data,@strata)
   
   # compute FRed
-  success, inform_basis, skeletal_basis, verbose = do_fred(sorted_strata, strata)
+  success, inform_basis, skeletal_basis, verbose = do_fred(@sorted_strata, @strata)
   
   # output informative basis
   @informBasis = @workbook.Worksheets.Add nil, @inputSheet
