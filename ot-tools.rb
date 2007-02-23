@@ -61,9 +61,9 @@ def sheet_format_input(input)
     @formattedSheet.Columns(width).EntireColumn.AutoFit
     
     # strong horizontal lines
-    @ct_data, @@block_sizes = ct_standard(@formatted_input.copy_mat)
+    @ct_data, @block_sizes = ct_standard(@formatted_input.copy_mat)
     row=2
-    for add in @@block_sizes do
+    for add in @block_sizes do
       range((row+=add),1,row, width-2).Borders(9).Weight = 3
     end
 end
@@ -184,7 +184,7 @@ def sheet_filtration
     range(1,2,4,2).horizontalAlignment = -4131                    # left-align headings
     range(3,2,height, 2).horizontalAlignment = -4131              # left-align input
     range(3,3,height, 3).horizontalAlignment = -4152              # right-align outputs
-    row=3
+    row = 3
     ([0]+@block_sizes[0..-2]).each do |blk|
       cel = cell((row+=blk),3)
       cel.font.bold = true
@@ -210,7 +210,7 @@ def fred
   range(1,1,inform_basis.size, inform_basis[1].size).Value = inform_basis
   
   # format sheet
-  range(2,1,inform_basis.size, inform_basis[1].size).Borders.Weight = 2      # grid
+  range(2,1,inform_basis.size, inform_basis[1].size).Borders.Weight = 2          # grid
   range(1,1,1, inform_basis[1].size).Borders(9).Weight = 3                       # heavy top line
   range(2,1,2, inform_basis[1].size).Borders(9).LineStyle = -4119                # double top line
 
@@ -224,7 +224,7 @@ def fred
   range(1,1,skeletal_basis.size, inform_basis[1].size).Value = skeletal_basis
   
   # format sheet
-  range(2,1,skeletal_basis.size , skeletal_basis[1].size).Borders.Weight = 2      # grid
+  range(2,1,skeletal_basis.size , skeletal_basis[1].size).Borders.Weight = 2       # grid
   range(1,1,1, skeletal_basis[1].size).Borders(9).Weight = 3                       # heavy top line
   range(2,1,2, skeletal_basis[1].size).Borders(9).LineStyle = -4119                # double top line
   
