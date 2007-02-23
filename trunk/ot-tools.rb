@@ -34,6 +34,7 @@ def rcd
   sheet_format_input(input)
   sheet_ct_standard
   sheet_rcd_view
+  sheet_filtration(numConstraints)
 end
 
 def sheet_format_input(input)
@@ -116,7 +117,7 @@ def sheet_rcd_view
     @rcdSheet.Name = "RCD View"
     
     # calculate data
-    @strata, success = do_rcd(@ct_data.every[4..-1])
+    @strata, $success = do_rcd(@ct_data.every[4..-1])
     strata_len = [0]
     @strata.each{|x| strata_len << strata_len[-1]+x.size}
     
@@ -155,21 +156,21 @@ def sheet_rcd_view
     end
 
     # Check failure
-    unless success then
+    unless $success then
       range(layers[-1]-1,1,layers[-2],1).Interior.ColorIndex = 3
       cell(layers[-1],1).Value = "FAIL!"
       cell(layers[-1],1).Font.Bold = true
     end
 end
 
-def sheet_filtration
+def sheet_filtration(numConstraints)
     # filtration
     # make sheet
     @filtrSheet = @workbook.Worksheets.Add nil, @rcdSheet
     @filtrSheet.Name = "Filtration View"
     
     # calculate data
-    filtr_data = filtration(@formatted_input.every.r.map{|x|x.instance_of?(Float) ? x.to_i : x}, @block_sizes, @strata.flatten).every(2).r.to_s
+    filtr_data = filtration(@formatted_input.every.r.map{|x|x.instance_of?(Float) ? x.to_i : x}, @block_sizes, @strata.flatten, numConstraints).every(2).r.to_s
     height = filtr_data.size
     width = filtr_data[1].size - 2
     
@@ -273,7 +274,7 @@ def main
     gets
   end
   rcd
-  fred
+  fred if $success
 end
 
 main

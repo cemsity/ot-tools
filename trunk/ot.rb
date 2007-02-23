@@ -95,7 +95,8 @@ end
 #  blocks - the number of candidates for each choice
 #  strata - the ordering of the columns
 #  returns the Filtration-View sheet
-def filtration(input, blocks, strata)
+def filtration(input, blocks, strata, numConstraints)
+  width = strata.size+5
   strata=strata.dup
   cols = (0...input[0].size).to_a
   cols[4..-3] = strata.every+4
@@ -110,15 +111,18 @@ def filtration(input, blocks, strata)
     block.sort!{|a,b| a[4..-1] <=> b[4..-1]}
     block[0][1] = in_word
     col = 4
-    while cands[0]
+    while cands[0] && (col<= width)
       cands.select{|c| block[c][col] != block[0][col]}.each do
         |del|
         block[cands.delete(del)][col] += ' !'
       end
       col += 1
     end
-     ### deal with blank row
-    block[0][3] += 'wins'
+    row=0
+    while(block[row][4..-3]==block[0][4..-3])
+      block[row][3]+='wins'
+      row +=1
+    end
     res += block
   end
   res
