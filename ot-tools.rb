@@ -198,8 +198,8 @@ def fred
   #@excel.activeSheet = @inputSheet
   E[0..-1]=''
   
-  strata, success = do_rcd(@ct_data.every[4..-1])
-  @sorted_strata = sort_by_strata(@ct_data,@strata)
+  #strata, success = do_rcd(@ct_data.every[4..-1])
+  #@sorted_strata = sort_by_strata(@ct_data,@strata)
   
   # compute FRed
   success, inform_basis, skeletal_basis, verbose = do_fred(@sorted_strata, @strata)
