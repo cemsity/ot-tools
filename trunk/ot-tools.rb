@@ -7,7 +7,7 @@ require 'excel'
 Interactive = false
 
 # Validates @inputSheet, returns [numConstraints, numLines] in said worksheet
-def validate
+def get_dims
   col = 3
   while cell(2,col).Value != 'Remarks'
     col += 1
@@ -25,21 +25,26 @@ end
 def rcd
   #@excel.activeSheet = @inputSheet
   E[0..-1]='e'
-  # Sheet 2 #
-    # Validate input
-    numConstraints, numLines = validate
-    return nil if not numConstraints or not numLines
-    input = range(1,1,numLines+2, numConstraints+5).Value
+
+  # Validate input
+  numConstraints, numLines = get_dims
+  return nil if not numConstraints or not numLines
+  input = range(1,1,numLines+2, numConstraints+5).Value
+    
+  sheet_format_input(input)
+end
+
+def sheet_format_input(input)
+  # Sheet 2 #  
+    # format input
+    formatted_input = format_input(input)
+    height = formatted_input.size
+    width = formatted_input[1].size
     
     # add sheet
     @formattedSheet = @workbook.Worksheets.Add nil, @inputSheet
     @formattedSheet.Name = "Input Formatted"
     
-    # format input
-    formatted_input = format_input(input)
-    
-    height = formatted_input.size
-    width = formatted_input[1].size
     
     # output data
     range(1,1,height, width).Value = formatted_input
@@ -54,12 +59,14 @@ def rcd
     @formattedSheet.Columns(width).EntireColumn.AutoFit
     
     # strong horizontal lines
-    @ct_data, block_sizes = ct_standard(formatted_input.copy_mat)
+    @ct_data, @@block_sizes = ct_standard(formatted_input.copy_mat)
     row=2
-    for add in block_sizes do
+    for add in @@block_sizes do
       range((row+=add),1,row, width-2).Borders(9).Weight = 3
     end
+end
 
+def sheet_ct_standard
   # Sheet 3 #
     # make sheet
     @ctSheet = @workbook.Worksheets.Add nil, @formattedSheet
@@ -82,15 +89,15 @@ def rcd
       
       # strong horizontal lines
       row = 2
-      for add in block_sizes[0..-2] do
+      for add in @block_sizes[0..-2] do
         range((row+=add-1),1,row, width).Borders(9).Weight = 3
       end
       
       range(1,1, height,width).each { |cur_cell| cur_cell.Font.Bold = "True" if [W,L].include?(cur_cell.Text) }
     end
     format_ct[]
-    
-  # Sheet 4 #
+
+  # Sheet 4 # CT without e's
     E[0...1] = ''
     @ctSheet2 = @workbook.Worksheets.Add nil, @ctSheet
     @ctSheet2.Name = "CT no e's"
@@ -98,7 +105,9 @@ def rcd
     # output data
     range(1,1,height, width).Value = @ct_data
     format_ct[]
+end
 
+def sheet_rcd_view
   # Sheet 5 #
     # make sheets
     @rcdSheet = @workbook.Worksheets.Add nil, @ctSheet2
@@ -108,8 +117,6 @@ def rcd
     @strata, success = do_rcd(@ct_data.every[4..-1])
     strata_len = [0]
     @strata.each{|x| strata_len << strata_len[-1]+x.size}
-    #strata_len.shift
-    #strata_len=strata.every.size
     
     @sorted_strata = sort_by_strata(@ct_data.copy_mat,@strata)
     
@@ -138,13 +145,13 @@ def rcd
     curStratum = 0
     layers = []
     for n in (3..height+1)
-      # print [5+(strata_len[0...curStratum].sum or 0), 4+strata_len[0...(curStratum+1)].sum,n,"\n"].join(", ")    # good luck
       if range(n,5+strata_len[curStratum],n, 4+strata_len[curStratum+1]).Text == ""
         range(n-1,1,n-1, width).Borders(9).Weight = 3             # horizontal hard lines
         layers << n
         curStratum += 1
       end
     end
+
     # Check failure
     unless success then
       range(layers[-1]-1,1,layers[-2],1).Interior.ColorIndex = 3
@@ -152,13 +159,13 @@ def rcd
       cell(layers[-1],1).Font.Bold = true
     end
     
-  # filtration
+    # filtration
     # make sheet
-    @filtrSheet = @workbook.Worksheets.Add nil,@rcdSheet
+    @filtrSheet = @workbook.Worksheets.Add nil, @rcdSheet
     @filtrSheet.Name = "Filtration View"
     
     # calculate data
-    filtr_data = filtration(formatted_input.every.r.map{|x|x.instance_of?(Float) ? x.to_i : x}, block_sizes, @strata.flatten).every(2).r.to_s
+    filtr_data = filtration(formatted_input.every.r.map{|x|x.instance_of?(Float) ? x.to_i : x}, @block_sizes, @strata.flatten).every(2).r.to_s
     height = filtr_data.size
     width = filtr_data[1].size - 2
     
@@ -167,14 +174,14 @@ def rcd
     
     # format sheet
     range(2,1,height, width).Borders.Weight = 2                   # thin-line grid
-    range(2,1,height, 1).borders(10).lineStyle = -4119          # double line after Cand#
-    range(2,4,height, 4).borders(10).lineStyle = -4119          # double line after Opt
-    range(2,1,height, width).horizontalAlignment = -4108       # center data
+    range(2,1,height, 1).borders(10).lineStyle = -4119            # double line after Cand#
+    range(2,4,height, 4).borders(10).lineStyle = -4119            # double line after Opt
+    range(2,1,height, width).horizontalAlignment = -4108          # center data
     range(1,2,4,2).horizontalAlignment = -4131                    # left-align headings
-    range(3,2,height, 2).horizontalAlignment = -4131             # left-align input
-    range(3,3,height, 3).horizontalAlignment = -4152             # right-align outputs
+    range(3,2,height, 2).horizontalAlignment = -4131              # left-align input
+    range(3,3,height, 3).horizontalAlignment = -4152              # right-align outputs
     row=3
-    ([0]+block_sizes[0..-2]).each do |blk|
+    ([0]+@block_sizes[0..-2]).each do |blk|
       cel = cell((row+=blk),3)
       cel.font.bold = true
       cel.horizontalAlignment = -4131
@@ -186,8 +193,6 @@ end
 def fred
   #@excel.activeSheet = @inputSheet
   E[0..-1]=''
-  # Validate
-  numConstraints, numLines = validate
   
   strata, success = do_rcd(@ct_data.every[4..-1])
   @sorted_strata = sort_by_strata(@ct_data,@strata)
