@@ -274,7 +274,7 @@ def main
     gets
   end
   rcd
-  fred if $success
+  fred #if $success
 end
 
 main

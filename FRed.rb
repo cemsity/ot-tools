@@ -64,7 +64,7 @@ def fred_run(input, layer, lbls, mib, skb, ver, left, rules, strata)
   hold_fus = true
   
   #2. Identify lost information
-  ilc = (0..n).select{|i| fa[i]==W}
+  ilc = (0...(input[0].size)).select{|i| fa[i]==W}
   res = {}; lft={}
   ilc.each do |i|
     new_res = []
