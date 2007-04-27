@@ -1,11 +1,11 @@
 VERSION 5.00
 Begin {AC0714F6-3D04-11D1-AE7D-00A0C90F26F4} Connect 
-   ClientHeight    =   9945
+   ClientHeight    =   8385
    ClientLeft      =   1740
    ClientTop       =   1545
    ClientWidth     =   6585
    _ExtentX        =   11615
-   _ExtentY        =   17542
+   _ExtentY        =   14790
    _Version        =   393216
    Description     =   "RCD and FRED"
    DisplayName     =   "OT Tools"
@@ -44,9 +44,8 @@ End Sub
 '------------------------------------------------------
 Private Sub AddinInstance_OnDisconnection(ByVal RemoveMode As AddInDesignerObjects.ext_DisconnectMode, custom() As Variant)
 
-    Set xlApp = Nothing
-
     RemoveToolbarButtons
+    Set xlApp = Nothing
 
 End Sub
 
@@ -101,10 +100,7 @@ Public Sub RemoveToolbarButtons()
     On Error Resume Next
     
      'need to remove the command bar (toolbar)
-    Set cbBar = xlApp.CommandBars("OT Tools")
-    
-    cbBar.FindControl().Delete
-    cbBar.Delete
+    xlApp.CommandBars("OT Tools").Delete
     
      'remove event handlers from memory
     Set ButtonEvents = Nothing
