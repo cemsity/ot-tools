@@ -18,9 +18,9 @@ Attribute cbBtn.VB_VarHelpID = -1
 
 Private Sub cbBtn_Click(ByVal Ctrl As Office.CommandBarButton, CancelDefault As Boolean)
     'supress errors
-    On Error Resume Next
+    'On Error Resume Next
     
-    MsgBox "Hello World!"
+    Shell ("ott.exe")
      
     'cancel Excel looking for the sub specified in the OnAction property
     CancelDefault = True

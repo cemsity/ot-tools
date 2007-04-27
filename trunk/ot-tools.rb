@@ -1,10 +1,11 @@
-### autofit word/pronunciation columns (before putting in comments)
+	### autofit word/pronunciation columns (before putting in comments)
 
 require 'rcd'
 require 'fred'
 require 'ot'
 require 'excel'
 Interactive = false
+Command_line = true
 
 # Validates @inputSheet, returns [numConstraints, numLines] in said worksheet
 def get_dims
