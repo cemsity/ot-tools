@@ -14,7 +14,7 @@ def do_rcd(table)
     
     # get rid of all columns which have L's
     for row in table
-      stratum.each do |x|
+    	stratum.dup.each do |x|					 # stratum.each would skip on deletions
         stratum.delete(x) if row[x] == L
       end
     end
