@@ -1,11 +1,12 @@
-	### autofit word/pronunciation columns (before putting in comments)
+### autofit word/pronunciation columns (before putting in comments)
+
+# updated 4-21-07 -AP
 
 require 'rcd'
 require 'fred'
 require 'ot'
 require 'excel'
 Interactive = false
-Command_line = true
 
 # Validates @inputSheet, returns [numConstraints, numLines] in said worksheet
 def get_dims
@@ -19,6 +20,7 @@ def get_dims
   while range(row, 2, row+10, 2).Text != ""
     row += 1
   end
+  @inputSheet.Name = "User Input"         #added by AP
   [col-5, row-3]
 end
 
@@ -88,7 +90,7 @@ def sheet_ct_standard
       range(2,1,height, width).Borders.Weight = 2             # thin-line grid
       range(2,5,height, width).HorizontalAlignment = -4108    # center text
       range(1,1,1, width).Borders(9).Weight = 3               # top hard line
-      range(2,1, 2, width).Borders(9).LineStyle = -4119        # top double line
+      range(2,1, 2, width).Borders(9).LineStyle = -4119       # top double line
       range(2,4,height, 4).Borders(10).LineStyle = -4119      # vertical double line
       
       # strong horizontal lines
@@ -112,7 +114,7 @@ def sheet_ct_standard
 end
 
 def sheet_rcd_view
-  # Sheet 5 #
+  # Sheet 5 -- i.e. 8th in the sequence #
     # make sheets
     @rcdSheet = @workbook.Worksheets.Add nil, @ctSheet2
     @rcdSheet.Name = "RCD View"
@@ -138,8 +140,8 @@ def sheet_rcd_view
     range(2,4,height, 4).Borders(10).LineStyle = -4119            # vertical double line
     
     # highlight W's and L's
-    range(2,5,height,width).each { |cur_cell| cur_cell.Font.Bold = "True" if [W,L].include?(cur_cell.Text) }  
-    
+    range(3,5,height,width).each { |cur_cell| cur_cell.Font.Bold = "True" if [W,L].include?(cur_cell.Text) }  
+    									#changed 2 to 3 -AP
     # draw strong vertical lines
     for n in strata_len
       range(2,n+4,height, n+4).Borders(10).Weight = 3             # vertical hard lines
@@ -147,7 +149,7 @@ def sheet_rcd_view
     
     # draw strong horizontal lines
     curStratum = 0
-    layers = []
+    layers = [3]				#inserted 3 here, handles case where 1st strat is bad -AP
     for n in (3..height+1)
       if range(n,5+strata_len[curStratum],n, 4+strata_len[curStratum+1]).Text == ""
         range(n-1,1,n-1, width).Borders(9).Weight = 3             # horizontal hard lines
@@ -158,9 +160,9 @@ def sheet_rcd_view
 
     # Check failure
     unless $success then
-      range(layers[-1]-1,1,layers[-2],1).Interior.ColorIndex = 3
       cell(layers[-1],1).Value = "FAIL!"
       cell(layers[-1],1).Font.Bold = true
+      range(layers[-1]-1,1,layers[-2],1).Interior.ColorIndex = 3  #moved here -AP
     end
 end
 
@@ -199,9 +201,9 @@ end
 def fred
   #@excel.activeSheet = @inputSheet
   E[0..-1]=''
-  
-  #strata, success = do_rcd(@ct_data.every[4..-1])
-  #@sorted_strata = sort_by_strata(@ct_data,@strata)
+   
+  @strata ||= do_rcd(@ct_data.every[4..-1])[0]      #No longer reliant on previous run for @strata, @sorted_strata. Still for @ct_data. NB: check this
+  @sorted_strata ||= sort_by_strata(@ct_data,@strata)
   
   # compute FRed
   success, inform_basis, skeletal_basis, verbose = do_fred(@sorted_strata, @strata)
