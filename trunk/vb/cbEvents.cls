@@ -20,7 +20,7 @@ Private Sub cbBtn_Click(ByVal Ctrl As Office.CommandBarButton, CancelDefault As 
     'supress errors
     'On Error Resume Next
     
-    Shell ("ott.exe")
+    Shell ("ott.exe -c")
      
     'cancel Excel looking for the sub specified in the OnAction property
     CancelDefault = True

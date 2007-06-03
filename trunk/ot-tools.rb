@@ -7,6 +7,8 @@ require 'fred'
 require 'ot'
 require 'excel'
 Interactive = false
+CommandLine = false
+CommandLine = true if ARGV[0] == '-c'
 
 # Validates @inputSheet, returns [numConstraints, numLines] in said worksheet
 def get_dims

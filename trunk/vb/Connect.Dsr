@@ -34,7 +34,6 @@ Attribute xlApp.VB_VarHelpID = -1
 Private Sub AddinInstance_OnConnection(ByVal Application As Object, ByVal ConnectMode As AddInDesignerObjects.ext_ConnectMode, ByVal AddInInst As Object, custom() As Variant)
     
     Set xlApp = Application
-    
     CreateToolbarButtons
     
 End Sub
@@ -93,9 +92,7 @@ End Sub
 
 Public Sub RemoveToolbarButtons()
      
-    Dim cbBar As CommandBar
-     
-     'supress errors - this is important here as they may not have been created
+     'supress errors - this is important here as toolbar may not have been created
      'yet or may have been alreday deleted
     On Error Resume Next
     
