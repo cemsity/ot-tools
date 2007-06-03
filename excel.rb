@@ -1,8 +1,8 @@
 require 'win32ole'
   
 def setup
-  if Command_line then
-		@excel = WIN32OLE::connect('excel.Application')
+  if CommandLine then
+		@excel = WIN32OLE.connect('Excel.Application')
 		@workbook = @excel.activeworkbook
 		@inputSheet = @workbook.activesheet
   else
